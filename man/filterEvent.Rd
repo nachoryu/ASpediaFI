@@ -4,7 +4,7 @@
 \alias{filterEvent}
 \title{Detection of AS events from TxDb}
 \usage{
-filterEvent(ASlist, TxDb)
+filterEvent(ASlist, total.exon.range, total.intron.range, txTable)
 }
 \arguments{
 \item{ASlist}{a list of AS events}
