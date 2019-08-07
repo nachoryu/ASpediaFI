@@ -11,12 +11,11 @@
 #'affecting alternative splicing patterns in human using bioinformatics method.
 #'\emph{Genes & Genomics}, 39.
 #'@keywords internal
-#'@importFrom IVAS findAlternative chrseparate
-#'@importFrom GenomicFeatures exonsBy intronsByTranscript
-#'@importFrom biomaRt select
+#'@importFrom IVAS findAlternative
+#'@import GenomicFeatures
 #'@importFrom limma strsplit2
 #'@importFrom GenomicRanges start end
-filterEvent <- function(ASlist, TxDb){
+filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
 
     ###Extract information relevant to AS genes
     se <- rbind(ASlist[["SE"]])
@@ -27,15 +26,6 @@ filterEvent <- function(ASlist, TxDb){
 
     tested.geneid <- unique(c(se[,"EnsID"], mxe[,"EnsID"], a5ss[,"EnsID"],
                               a3ss[,"EnsID"], ri[,"EnsID"]))
-    total.chr <- unique(c(se[,"Nchr"], mxe[,"Nchr"], a5ss[,"Nchr"],
-                          a3ss[,"Nchr"], ri[,"Nchr"]))
-    TxDb <- chrseparate(TxDb, total.chr)
-    total.exon.range <- exonsBy(TxDb, by = "tx")
-    total.intron.range <- intronsByTranscript(TxDb)
-    txTable <- select(TxDb, keys = names(total.exon.range),
-                      columns = c("TXCHROM", "TXNAME", "GENEID",
-                                  "TXSTART", "TXEND", "TXSTRAND"),
-                      keytype = "TXID")
     sub.txTable <- rbind(txTable[is.element(txTable$GENEID, tested.geneid),])
     sub.exon.range <- total.exon.range[is.element(names(total.exon.range),
                                                   as.matrix(sub.txTable[, "TXID"])),]
