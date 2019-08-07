@@ -6,10 +6,11 @@
 #'@param Ncor The number of cores for parallel processing
 #'@return A list of AS events
 #'@details This function is borrowed from the \code{IMAS} package.
-#'@importFrom GenomicAlignments extractAlignmentRangesOnReference readGAlignments
+#'@import GenomicAlignments
 #'@importFrom GenomicRanges GRanges
 #'@importFrom IRanges IRanges
 #'@importFrom Rsamtools ScanBamParam
+#'@importFrom S4Vectors elementMetadata
 #'@keywords internal
 SplicingReads <- function(bamfile = NULL, test.exon = NULL, spli.jun = NULL,
                           e.ran = NULL, SNPchr = NULL, readsinfo = "paired",

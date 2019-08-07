@@ -12,6 +12,7 @@
 #'affecting alternative splicing patterns in human using bioinformatics method.
 #'\emph{Genes & Genomics}, 39.
 #'@importFrom GenomicFeatures makeTxDbFromGFF
+#'@importFrom AnnotationDbi saveDb loadDb
 #'@export
 detectEvent <- function(file, Ncor){
     gtfdb <- makeTxDbFromGFF(file)

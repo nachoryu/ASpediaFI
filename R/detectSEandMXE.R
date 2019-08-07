@@ -12,6 +12,7 @@
 #'affecting alternative splicing patterns in human using bioinformatics method.
 #'\emph{Genes & Genomics}, 39.
 #'@keywords internal
+#'@importFrom stats complete.cases
 detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
     tx.exon.ranges <- cbind(tapply(exon.info[,"start"], rownames(exon.info),
                                    min),

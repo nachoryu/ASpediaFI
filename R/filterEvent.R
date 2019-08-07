@@ -15,6 +15,7 @@
 #'@importFrom GenomicFeatures exonsBy intronsByTranscript
 #'@importFrom biomaRt select
 #'@importFrom limma strsplit2
+#'@importFrom GenomicRanges start end
 filterEvent <- function(ASlist, TxDb){
 
     ###Extract information relevant to AS genes

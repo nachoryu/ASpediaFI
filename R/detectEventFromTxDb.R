@@ -14,6 +14,7 @@
 #'@importFrom BiocParallel bplapply SnowParam
 #'@importFrom IVAS findAlternative chrseparate
 #'@importFrom GenomicFeatures exonsBy intronsByTranscript
+#'@importFrom GenomicRanges start end seqnames
 #'@importFrom biomaRt select
 detectEventFromTxDb <- function(TxDb, Ncor = 1){
     CalAlt <- function(altInvalue){
