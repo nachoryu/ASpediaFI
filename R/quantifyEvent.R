@@ -196,7 +196,9 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
         ratio.g.1 <- group.1.read.count/g.1.nor.num
         ratio.g.2 <- group.2.read.count/g.2.nor.num
         group.total <- sum(ratio.g.1, ratio.g.2)
-        group.1.2.ratio <- (group.2.read.count/g.2.nor.num)/group.total
+        group.1.2.ratio <- ifelse(AStype == "RI",
+                                  ratio.g.2/group.total,
+                                  1 - (ratio.g.2/group.total))
         if (group.1.read.count == 0 | group.2.read.count == 0)
             return("NA")
         if (group.1.read.count < min.r & group.2.read.count < min.r) {
@@ -361,6 +363,7 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
         final.MXE.result <- NULL
         final.RI.result <- NULL
         if (!is.null(splicingInfo[["SE"]])) {
+            print("Calculating PSI of SE events")
             SE.result <- rbind(splicingInfo$SE)
             SE.ratio <- bplapply(seq_len(nrow(SE.result)), SE.te,
                                  BPPARAM = parm)
@@ -375,9 +378,10 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             rownames(final.SE.result) <- 1:nrow(final.SE.result)
         }
         if(!is.null(splicingInfo[["MXE"]])){
+            print("Calculating PSI of MXE events")
             MXE.result <- rbind(splicingInfo$MXE)
-            MXE.ratio <- bplapply(seq_len(nrow(MXE.result)), MXE.te,
-                                  BPPARAM = parm)
+            MXE.ratio <- suppressWarnings(bplapply(seq_len(nrow(MXE.result)),
+                                                   MXE.te, BPPARAM = parm))
             MXE.ratio <- do.call(rbind, MXE.ratio)
             MXE.result <- cbind(rbind(MXE.result[,c("EnsID", "Nchr", "Strand",
                                                     "1stEX", "2ndEX", "DownEX",
@@ -390,13 +394,14 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             rownames(final.MXE.result) <- 1:nrow(final.MXE.result)
         }
         if (!is.null(splicingInfo[["RI"]])) {
+            print("Calculating PSI of RI events")
             RI.result <- rbind(splicingInfo$RI)
             RI.ratio <- bplapply(seq_len(nrow(RI.result)), RI.te,
                                  BPPARAM = parm)
             RI.ratio <- do.call(rbind, RI.ratio)
             RI.result <- cbind(rbind(RI.result[, c("EnsID", "Nchr", "Strand",
                                                    "RetainEX", "DownEX",
-                                                   "UpEX", "EventID")]), 
+                                                   "UpEX", "EventID")]),
                                RI.ratio)
             colnames(RI.result) <- c("EnsID", "Nchr", "Strand", "RetainEX",
                                      "DownEX", "UpEX", "EventID", sample.names)
@@ -405,6 +410,7 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
         }
         if (!is.null(splicingInfo[["A5SS"]]) |
             !is.null(splicingInfo[["A3SS"]])) {
+            print("Calculating PSI of ASS events")
             ASS.result <- rbind(splicingInfo[["A5SS"]], splicingInfo[["A3SS"]])
             ASS.result <- cbind(ASS.result,
                                 Types = c(rep("A5SS",
@@ -417,21 +423,21 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             ASS.result <- cbind(rbind(ASS.result), ASS.ratio)
             A5SS.result <- rbind(ASS.result[ASS.result[,"Types"] == "A5SS",])
             A3SS.result <- rbind(ASS.result[ASS.result[,"Types"] == "A3SS",])
-            
+
             colnames(A5SS.result) <- c("EnsID", "Nchr", "Strand", "ShortEX",
-                                       "LongEX", "NeighborEX", "EventID", 
+                                       "LongEX", "NeighborEX", "EventID",
                                        "Types", sample.names)
             colnames(A3SS.result) <- c("EnsID", "Nchr", "Strand", "ShortEX",
-                                       "LongEX", "NeighborEX", "EventID", 
+                                       "LongEX", "NeighborEX", "EventID",
                                        "Types", sample.names)
-            
-            final.A5SS.result <- rbind(A5SS.result[,c("EnsID", "Nchr", "Strand", 
-                                                      "ShortEX", "LongEX", 
-                                                      "NeighborEX", "EventID", 
+
+            final.A5SS.result <- rbind(A5SS.result[,c("EnsID", "Nchr", "Strand",
+                                                      "ShortEX", "LongEX",
+                                                      "NeighborEX", "EventID",
                                                       sample.names)])
-            final.A3SS.result <- rbind(A3SS.result[,c("EnsID", "Nchr", "Strand", 
-                                                      "ShortEX", "LongEX", 
-                                                      "NeighborEX", "EventID", 
+            final.A3SS.result <- rbind(A3SS.result[,c("EnsID", "Nchr", "Strand",
+                                                      "ShortEX", "LongEX",
+                                                      "NeighborEX", "EventID",
                                                       sample.names)])
             if (!any(length(final.A5SS.result))){
                 final.A5SS.result <- NULL
