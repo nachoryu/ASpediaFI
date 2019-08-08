@@ -33,7 +33,7 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
         }))
         return(unique(final.re))
     }
-    coorEX <- function(spl.re, g.Info, readLen, inse, min.r = 5,
+    coorEX <- function(spl.re, g.Info, readLen, inse, min.reads = 5,
                        AStype) {
         Normalized.values <- function(exons.l, inse) {
             normal.max.in <- 0
@@ -160,7 +160,7 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             group.2.read.count <- sum(g.2.p.r, g.2.j.r)
             read.num.test.1 <- sum(g.1.p.r) == 0 & sum(g.1.j.r) == 0
             read.num.test.2 <- sum(g.2.p.r) == 0 & sum(g.2.j.r) == 0
-            if ((read.num.test.1) | (read.num.test.2) | total.reads < min.r) {
+            if ((read.num.test.1 & read.num.test.2) | total.reads < min.reads){
                 return("NA")
             }
             if (sum(g.1.j.r) == 0 | sum(g.2.j.r) == 0) {
@@ -199,9 +199,9 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
         group.1.2.ratio <- ifelse(AStype == "RI",
                                   ratio.g.2/group.total,
                                   1 - (ratio.g.2/group.total))
-        if (group.1.read.count == 0 | group.2.read.count == 0)
+        if (group.1.read.count == 0 & group.2.read.count == 0)
             return("NA")
-        if (group.1.read.count < min.r & group.2.read.count < min.r) {
+        if (group.1.read.count < min.reads & group.2.read.count < min.reads){
             group.1.2.ratio <- "NA"
         }
         return(group.1.2.ratio)
