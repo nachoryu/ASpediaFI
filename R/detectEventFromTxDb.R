@@ -3,11 +3,11 @@
 #'This function detects AS events from a TxDb object.
 #'
 #'@param TxDb A TxDb object
-#'@param Ncor The number of cores for parallel processing
+#'@param num.cores The number of cores for parallel processing
 #'@return A list of AS events
 #'@details This function is modified from \code{Splicingfinder} in the
 #'\code{IVAS} package.
-#'@references Han, A. et al. (2017). Genome wide discovery of genetic variants
+#'@references Han, S. et al. (2017). Genome wide discovery of genetic variants
 #'affecting alternative splicing patterns in human using bioinformatics method.
 #'\emph{Genes & Genomics}, 39.
 #'@keywords internal
@@ -16,7 +16,7 @@
 #'@importFrom GenomicFeatures exonsBy intronsByTranscript
 #'@importFrom GenomicRanges start end seqnames
 #'@importFrom biomaRt select
-detectEventFromTxDb <- function(TxDb, Ncor = 1){
+detectEventFromTxDb <- function(TxDb, num.cores = 1){
     CalAlt <- function(altInvalue){
         if (length(altInvalue) == 0)
             return (NULL)
@@ -148,7 +148,7 @@ detectEventFromTxDb <- function(TxDb, Ncor = 1){
         Alt.result <- CalAlt(Altvalue)
         Alt.result
     }
-    trans.exon.range <- exonsBy(TxDb,by="tx")
+    trans.exon.range <- exonsBy(TxDb, by="tx")
     trans.intron.range <- intronsByTranscript(TxDb)
     txTable <- select(TxDb, keys=names(trans.exon.range),
                       columns=c("TXCHROM", "TXNAME", "GENEID", "TXSTART",
@@ -160,7 +160,7 @@ detectEventFromTxDb <- function(TxDb, Ncor = 1){
     IR.finl.result <- NULL
     Alt.result <- NULL
     j = NULL
-    MP <- SnowParam(workers=Ncor, type="SOCK")
+    MP <- SnowParam(workers = num.cores, type="SOCK")
     for (i in 1:length(Total.chr)){
         print (paste("-------------------Processing : ", Total.chr[i],
                      " -------------------", sep = ""))

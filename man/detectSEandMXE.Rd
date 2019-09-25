@@ -24,7 +24,7 @@ This function detects skipped (SE) and mutually exclusive exons (MXE) events.
 This function is borrowed from the \code{IVAS} package.
 }
 \references{
-Han, A. et al. (2017). Genome wide discovery of genetic variants
+Han, S. et al. (2017). Genome wide discovery of genetic variants
 affecting alternative splicing patterns in human using bioinformatics method.
 \emph{Genes & Genomics}, 39.
 }

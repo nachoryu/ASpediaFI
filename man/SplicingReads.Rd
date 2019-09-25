@@ -4,21 +4,35 @@
 \alias{SplicingReads}
 \title{Counting junction and paired-end reads}
 \usage{
-SplicingReads(bamfile = NULL, test.exon = NULL, spli.jun = NULL,
-  e.ran = NULL, SNPchr = NULL, readsinfo = "paired", inse = 40)
+SplicingReads(bam.file = NULL, test.exon = NULL, spli.jun = NULL,
+  e.ran = NULL, chr = NULL, read.type = "paired", insert.size = 40)
 }
 \arguments{
-\item{ASlist}{a list of AS events}
+\item{bam.file}{a path to bam file}
 
-\item{Ncor}{The number of cores for parallel processing}
+\item{test.exon}{a data frame containing AS target exon and its neighbors}
+
+\item{spli.jun}{A data frame containing junction information}
+
+\item{e.ran}{A range of parsingr eads from a bam file}
+
+\item{chr}{A chromosome number}
+
+\item{read.type}{a type of RNA-Seq reads}
+
+\item{insert.size}{An insert.sizert size}
 }
 \value{
-A list of AS events
+A list of counts of junction reads and paired-end reads
 }
 \description{
 This function counts junction and paired-end reads.
 }
 \details{
 This function is borrowed from the \code{IMAS} package.
+}
+\references{
+Han, S. et al. (2017). IMAS: Integrative analysis of Multi-omics
+data for Alternative Splicing. R package version 1.8.0.
 }
 \keyword{internal}

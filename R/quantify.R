@@ -2,22 +2,28 @@
 #'
 #'This function calculates PSI of AS events from input bam files.
 #'
-#'@param ASlist a list of AS events
-#'@param Total.bamfiles a data frame containing paths and names of bam files
-#'@param readsInfo a type of RNA-seq reads ("single" or "paired")
-#'@param readLen read length
-#'@param insertSize insert size
-#'@param minr a minimum number of reads mapped to a given exon
-#'@param Ncor the number of cores for parallel processing
-#'@return A list of AS events
+#'@param AS.list a list of AS events
+#'@param sample.info a data frame containing names, bam file paths, and
+#'groups (optional) of samples
+#'@param read.type a type of RNA-seq reads ("single" or "paired")
+#'@param read.length read length
+#'@param insert.size insert size
+#'@param min.reads a minimum number of reads mapped to a given exon
+#'@param num.cores the number of cores for parallel processing
+#'@return A matrix containing PSI of AS events
 #'@details This function is modified from the \code{RatioFromReads} function
-#'in the \code{IMAS} package.
-#'@references Han, S. and Lee, Y. (2017). IMAS: Integrative analysis of
+#'in the \code{IMAS} package. \code{sample.info} must include two columns
+#'containing names and bam file paths of samples, respectively. The first,
+#'second, and third columns must correspond to names, bam file paths, and groups
+#'of samples.
+#'@references Han, S. et al. (2017). IMAS: Integrative analysis of
 #'Multi-omics data for Alternative Splicing. R package version 1.8.0.
-#'@export
+#'@keywords internal
+#'@import SummarizedExperiment
 #'@importFrom BiocParallel bplapply SnowParam
-quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
-                          readLen, insertSize, minr = 3, Ncor = 1){
+quantify <- function(AS.list, sample.info, read.type = "paired",
+                     read.length, insert.size, min.reads = 3,
+                     num.cores = 1){
     splitSplice <- function(EX1, EX2) {
         s.EX1 <- strsplit(unlist(strsplit(EX1, ",")), "-")
         s.EX2 <- strsplit(unlist(strsplit(EX2, ",")), "-")
@@ -33,7 +39,7 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
         }))
         return(unique(final.re))
     }
-    coorEX <- function(spl.re, g.Info, readLen, inse, min.reads = 5,
+    coorEX <- function(spl.re, g.Info, read.length, inse, min.reads = 5,
                        AStype) {
         Normalized.values <- function(exons.l, inse) {
             normal.max.in <- 0
@@ -138,7 +144,7 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             g.1.j.r <- 0
         if (!any(length(g.2.j.r)))
             g.2.j.r <- 0
-        read.l <- as.integer(readLen)
+        read.l <- as.integer(read.length)
         an.size = 1
         normal.values <- Normalized.values(total.exon.l, inse)
         if (AStype == "SE" | AStype == "MXE") {
@@ -207,9 +213,10 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
         return(group.1.2.ratio)
     }
     Each.Cal.ratio <- function(bamfiles = NULL, splicingInfo = NULL, splitEnv,
-                               cEnv, ins, minr, readLen, readsInfo, parm){
+                               cEnv, ins, min.reads, read.length, read.type,
+                               parm){
         ExReads <- function(t.ex, t.sp, g.e1, g.e2, g1, g2,
-                            s1, s2, ch, er, met, alt, ins, minr) {
+                            s1, s2, ch, er, met, alt, ins, min.reads) {
             coor.re <- NULL
             pre.bam.re <- lapply(seq_along(bamfiles), function(ebam) {
                 T.r <- SplicingReads(bamfiles[ebam], t.ex, t.sp,
@@ -226,7 +233,8 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
                 names(group.2.list) <- c("paired", "exon", "junction")
                 t.g.li <- list(group.1.list, group.2.list)
                 names(t.g.li) <- c("Inclu", "Skip")
-                coor.re <- cEnv$coorEX(T.r, t.g.li, readLen, ins, minr, alt)
+                coor.re <- cEnv$coorEX(T.r, t.g.li, read.length, ins, min.reads,
+                                       alt)
                 return(coor.re)
             })
             pre.bam.re <- do.call(cbind, pre.bam.re)
@@ -250,7 +258,8 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             t.sp <- c(g.1.s, g.2.s)
             e.chr <- SE.re[,"Nchr"]
             pr.re <- ExReads(t.ex, t.sp, t.ex, t.ex, g.1.p, g.2.p, g.1.s,
-                             g.2.s, e.chr, each.ran, readsInfo, "SE", ins, minr)
+                             g.2.s, e.chr, each.ran, read.type, "SE", ins,
+                             min.reads)
             pr.re
         }
         MXE.te <- function(MXE.num) {
@@ -278,8 +287,8 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             t.ex <- MXE.re[, c("DownEX", "1stEX", "2ndEX", "UpEX")]
             e.chr <- MXE.re[,"Nchr"]
             pr.re <- ExReads(t.ex, t.sp, g.1.e, g.2.e, g.1.p, g.2.p, g.1.s,
-                             g.2.s, e.chr, each.ran, readsInfo,
-                             "MXE", ins, minr)
+                             g.2.s, e.chr, each.ran, read.type,
+                             "MXE", ins, min.reads)
             pr.re
         }
         RI.te <- function(RI.num) {
@@ -301,7 +310,7 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             e.chr <- ea.re[,"Nchr"]
             pr.re <- ExReads(t.ex, g.1.s, t.ex, t.ex, g.1.p,
                              g.2.p, g.1.s, g.2.s, e.chr, each.ran, "exon",
-                             "RI", ins, minr)
+                             "RI", ins, min.reads)
             pr.re
         }
         ASS.te <- function(ASS.num) {
@@ -352,30 +361,22 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             e.chr <- unique(ea.re[,"Nchr"])
             pr.re <- ExReads(t.ex, t.sp, g.1.e, g.2.e, g.1.p,
                              g.2.p, g.1.s, g.2.s, e.chr, each.ran, "exon",
-                             "ASS", ins, minr)
+                             "ASS", ins, min.reads)
             pr.re
         }
         if (!any(length(splicingInfo)))
             return(NULL)
-        final.SE.result <- NULL
-        final.A5SS.result <- NULL
-        final.A3SS.result <- NULL
-        final.MXE.result <- NULL
-        final.RI.result <- NULL
+        SE.ratio <- NULL
+        MXE.ratio <- NULL
+        RI.ratio <- NULL
+        ASS.ratio <- NULL
         if (!is.null(splicingInfo[["SE"]])) {
             print("Calculating PSI of SE events")
             SE.result <- rbind(splicingInfo$SE)
             SE.ratio <- bplapply(seq_len(nrow(SE.result)), SE.te,
                                  BPPARAM = parm)
             SE.ratio <- do.call(rbind, SE.ratio)
-            SE.result <- cbind(rbind(SE.result[,c("EnsID", "Nchr", "Strand",
-                                                  "1stEX", "DownEX", "UpEX",
-                                                  "EventID")]),
-                               SE.ratio)
-            colnames(SE.result) <- c("EnsID", "Nchr", "Strand", "1stEX",
-                                     "DownEX", "UpEX", "EventID", sample.names)
-            final.SE.result <- rbind(SE.result)
-            rownames(final.SE.result) <- 1:nrow(final.SE.result)
+            rownames(SE.ratio) <- SE.result[,"EventID"]
         }
         if(!is.null(splicingInfo[["MXE"]])){
             print("Calculating PSI of MXE events")
@@ -383,15 +384,7 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             MXE.ratio <- suppressWarnings(bplapply(seq_len(nrow(MXE.result)),
                                                    MXE.te, BPPARAM = parm))
             MXE.ratio <- do.call(rbind, MXE.ratio)
-            MXE.result <- cbind(rbind(MXE.result[,c("EnsID", "Nchr", "Strand",
-                                                    "1stEX", "2ndEX", "DownEX",
-                                                    "UpEX", "EventID")]),
-                                MXE.ratio)
-            colnames(MXE.result) <- c("EnsID", "Nchr", "Strand", "1stEX",
-                                      "2ndEX", "DownEX", "UpEX", "EventID",
-                                      sample.names)
-            final.MXE.result <- rbind(MXE.result)
-            rownames(final.MXE.result) <- 1:nrow(final.MXE.result)
+            rownames(MXE.ratio) <- MXE.result[,"EventID"]
         }
         if (!is.null(splicingInfo[["RI"]])) {
             print("Calculating PSI of RI events")
@@ -399,14 +392,7 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             RI.ratio <- bplapply(seq_len(nrow(RI.result)), RI.te,
                                  BPPARAM = parm)
             RI.ratio <- do.call(rbind, RI.ratio)
-            RI.result <- cbind(rbind(RI.result[, c("EnsID", "Nchr", "Strand",
-                                                   "RetainEX", "DownEX",
-                                                   "UpEX", "EventID")]),
-                               RI.ratio)
-            colnames(RI.result) <- c("EnsID", "Nchr", "Strand", "RetainEX",
-                                     "DownEX", "UpEX", "EventID", sample.names)
-            final.RI.result <- rbind(RI.result)
-            rownames(final.RI.result) <- 1:nrow(final.RI.result)
+            rownames(RI.ratio) <- RI.result[,"EventID"]
         }
         if (!is.null(splicingInfo[["A5SS"]]) |
             !is.null(splicingInfo[["A3SS"]])) {
@@ -420,42 +406,17 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
             ASS.ratio <- bplapply(seq_len(nrow(ASS.result)), ASS.te,
                                   BPPARAM = parm)
             ASS.ratio <- do.call(rbind, ASS.ratio)
-            ASS.result <- cbind(rbind(ASS.result), ASS.ratio)
-            A5SS.result <- rbind(ASS.result[ASS.result[,"Types"] == "A5SS",])
-            A3SS.result <- rbind(ASS.result[ASS.result[,"Types"] == "A3SS",])
-
-            colnames(A5SS.result) <- c("EnsID", "Nchr", "Strand", "ShortEX",
-                                       "LongEX", "NeighborEX", "EventID",
-                                       "Types", sample.names)
-            colnames(A3SS.result) <- c("EnsID", "Nchr", "Strand", "ShortEX",
-                                       "LongEX", "NeighborEX", "EventID",
-                                       "Types", sample.names)
-
-            final.A5SS.result <- rbind(A5SS.result[,c("EnsID", "Nchr", "Strand",
-                                                      "ShortEX", "LongEX",
-                                                      "NeighborEX", "EventID",
-                                                      sample.names)])
-            final.A3SS.result <- rbind(A3SS.result[,c("EnsID", "Nchr", "Strand",
-                                                      "ShortEX", "LongEX",
-                                                      "NeighborEX", "EventID",
-                                                      sample.names)])
-            if (!any(length(final.A5SS.result))){
-                final.A5SS.result <- NULL
-            }
-            else rownames(final.A5SS.result) <- 1:nrow(final.A5SS.result)
-            if (!any(length(final.A3SS.result))){
-                final.A3SS.result <- NULL
-            }
-            else rownames(final.A3SS.result) <- 1:nrow(final.A3SS.result)
+            rownames(ASS.ratio) <- ASS.result[,"EventID"]
         }
-        final.re <- list(final.A3SS.result, final.A5SS.result, final.SE.result,
-                         final.MXE.result, final.RI.result)
-        names(final.re) <- c("A3SS", "A5SS", "SE", "MXE", "RI")
+        final.re <- rbind(ASS.ratio, SE.ratio, MXE.ratio, RI.ratio)
+        rowid <- suppressWarnings(rownames(final.re))
+        final.re <- suppressWarnings(apply(final.re, 2, as.numeric))
+        rownames(final.re) <- rowid
         return(final.re)
     }
     splitEnv <- environment(splitSplice)
     cEnv <- environment(coorEX)
-    ins <- insertSize
+    ins <- insert.size
     ea.re <- NULL
     MXE.num <- NULL
     SE.num <- NULL
@@ -470,10 +431,24 @@ quantifyEvent <- function(ASlist, Total.bamfiles, readsInfo = "paired",
     se.pair.2 <- NULL
     final.re <- NULL
     called.packages <- c("GenomicRanges", "GenomicFeatures")
-    sample.files <- rbind(Total.bamfiles[,"path"])
-    sample.names <- rbind(Total.bamfiles[,"names"])
-    parm <- SnowParam(workers = Ncor, type = "SOCK")
-    final.ra <- Each.Cal.ratio(sample.files, ASlist, splitEnv, cEnv, ins,
-                               minr, readLen, readsInfo, parm)
-    return(final.ra)
+    if(ncol(sample.info) >= 3){
+        colnames(sample.info)[1:3] <- c("name", "path", "condition")
+    } else{
+        colnames(sample.info)[1:2] <- c("name", "path")
+    }
+    sample.files <- rbind(sample.info[,"path"])
+    sample.names <- sample.info[,"name"]
+    parm <- SnowParam(workers = num.cores, type = "SOCK")
+    final.ra <- Each.Cal.ratio(sample.files, AS.list, splitEnv, cEnv, ins,
+                               min.reads, read.length, read.type, parm)
+    colnames(final.ra) <- sample.names
+    coldat <- data.frame(row.names = sample.info[,"name"],
+                         bam = sample.info[,"path"],
+                         stringsAsFactors = FALSE)
+    if("group" %in% colnames(sample.info)){
+        coldat$group <- sample.info[,"condition"]
+    }
+    final.res <- SummarizedExperiment(assays = list(psi = final.ra),
+                                      colData = coldat)
+    return(final.res)
 }

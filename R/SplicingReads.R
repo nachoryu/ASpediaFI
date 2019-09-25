@@ -2,19 +2,26 @@
 #'
 #'This function counts junction and paired-end reads.
 #'
-#'@param ASlist a list of AS events
-#'@param Ncor The number of cores for parallel processing
-#'@return A list of AS events
+#'@param bam.file a path to bam file
+#'@param test.exon a data frame containing AS target exon and its neighbors
+#'@param spli.jun A data frame containing junction information
+#'@param e.ran A range of parsingr eads from a bam file
+#'@param chr A chromosome number
+#'@param read.type a type of RNA-Seq reads
+#'@param insert.size An insert.sizert size
+#'@return A list of counts of junction reads and paired-end reads
 #'@details This function is borrowed from the \code{IMAS} package.
+#'@references Han, S. et al. (2017). IMAS: Integrative analysis of Multi-omics
+#'data for Alternative Splicing. R package version 1.8.0.
 #'@import GenomicAlignments
 #'@importFrom GenomicRanges GRanges
 #'@importFrom IRanges IRanges
 #'@importFrom Rsamtools ScanBamParam
 #'@importFrom S4Vectors elementMetadata
 #'@keywords internal
-SplicingReads <- function(bamfile = NULL, test.exon = NULL, spli.jun = NULL,
-                          e.ran = NULL, SNPchr = NULL, readsinfo = "paired",
-                          inse = 40){
+SplicingReads <- function(bam.file = NULL, test.exon = NULL, spli.jun = NULL,
+                          e.ran = NULL, chr = NULL, read.type = "paired",
+                          insert.size = 40){
     ReadCover <- function(t.reads) {
         cigar.s <- cigar(t.reads)
         pos.s <- start(t.reads)
@@ -56,7 +63,7 @@ SplicingReads <- function(bamfile = NULL, test.exon = NULL, spli.jun = NULL,
         return(ov.E.r)
     }
     exEnv <- environment(ex.test)
-    pa.test <- function(Preads, readsinfo) {
+    pa.test <- function(Preads, read.type) {
         count.reads <- function(bet.num) {
             fi.nums <- over.mat[,"subjectHits"] == bet.num[1]
             se.nums <- over.mat[,"subjectHits"] == bet.num[2]
@@ -88,7 +95,7 @@ SplicingReads <- function(bamfile = NULL, test.exon = NULL, spli.jun = NULL,
         Pco.Gran <- GRanges("*", unlist(Pco))
         over.mat <- findOverlaps(Pco.Gran, Ex.range)
         over.mat <- as.matrix(over.mat)
-        if (readsinfo == "exon") {
+        if (read.type == "exon") {
             ex.re <- exEnv$ex.test(Pco.Gran, over.mat, NULL)
             return(ex.re)
         }
@@ -128,20 +135,20 @@ SplicingReads <- function(bamfile = NULL, test.exon = NULL, spli.jun = NULL,
     final.re <- list(NULL, NULL, NULL)
     names(final.re) <- c("pairedInfo", "exonInfo", "junctionInfo")
     I.ran <- IRanges(min(as.integer(e.ran)), max(as.integer(e.ran)))
-    which.ragnes <- GRanges(seqnames = SNPchr, ranges = I.ran)
+    which.ragnes <- GRanges(seqnames = chr, ranges = I.ran)
     what.param <- c("qname", "rname", "pos", "mapq", "cigar",
                     "seq", "qual")
     param <- ScanBamParam(which = which.ragnes, what = what.param, tag = "MD")
-    T.reads <- readGAlignments(bamfile, use.names = TRUE, param = param)
+    T.reads <- readGAlignments(bam.file, use.names = TRUE, param = param)
     if (length(T.reads) < 10)
         return(final.re)
     Nreads <- T.reads[njunc(T.reads) == 1, ]
     N.re <- N.test(Nreads)
     not.N <- !is.element(names(T.reads), N.re$re.nms)
     Not.N.reads <- T.reads[not.N, ]
-    P.re <- pa.test(Not.N.reads, readsinfo)
+    P.re <- pa.test(Not.N.reads, read.type)
     N.re <- N.re$junctionInfo
-    if(readsinfo == "paired"){
+    if(read.type == "paired"){
         final.re <- list(P.re$pairedInfo, P.re$exonInfo, N.re)
     }
     else{

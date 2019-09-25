@@ -4,12 +4,12 @@
 \alias{detectEventFromTxDb}
 \title{Detection of AS events from TxDb}
 \usage{
-detectEventFromTxDb(TxDb, Ncor = 1)
+detectEventFromTxDb(TxDb, num.cores = 1)
 }
 \arguments{
 \item{TxDb}{A TxDb object}
 
-\item{Ncor}{The number of cores for parallel processing}
+\item{num.cores}{The number of cores for parallel processing}
 }
 \value{
 A list of AS events
@@ -22,7 +22,7 @@ This function is modified from \code{Splicingfinder} in the
 \code{IVAS} package.
 }
 \references{
-Han, A. et al. (2017). Genome wide discovery of genetic variants
+Han, S. et al. (2017). Genome wide discovery of genetic variants
 affecting alternative splicing patterns in human using bioinformatics method.
 \emph{Genes & Genomics}, 39.
 }

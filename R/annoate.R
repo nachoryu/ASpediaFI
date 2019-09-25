@@ -3,16 +3,22 @@
 #'This function converts information of AS events into ASpedia format.
 #'
 #'@param ASlist a list of AS events
+#'@param gtf a GRanges object representing GTF
 #'@return A list of annotated AS events
 #'@keywords internal
 #'@importFrom limma strsplit2
-annotateEvent <- function(ASlist){
+annotate <- function(ASlist, gtf){
 
     a5ss <- ASlist$A5SS
     a3ss <- ASlist$A3SS
     se <- ASlist$SE
     mxe <- ASlist$MXE
     ri <- ASlist$RI
+
+    id_to_name <- data.frame(id = gtf$gene_id, name = gtf$gene_name,
+                             stringsAsFactors = F)
+    id_to_name <- unique(id_to_name)
+    rownames(id_to_name) <- id_to_name$id
 
     #Annotate A5SS events
     if(length(a5ss)){
@@ -22,12 +28,13 @@ annotateEvent <- function(ASlist){
         long.end <- strsplit2(a5ss[,"LongEX"], split = "-")[,2]
         nei.start <- strsplit2(a5ss[,"NeighborEX"], split = "-")[,1]
         nei.end <- strsplit2(a5ss[,"NeighborEX"], split = "-")[,2]
+        gene.symbol <- id_to_name[a5ss[,"EnsID"], "name"]
 
         aspedia.id <- ifelse(a5ss[,"Strand"] == "+",
-                             paste(a5ss[,"EnsID"], "A5SS", a5ss[,"Nchr"],
+                             paste(gene.symbol, "A5SS", a5ss[,"Nchr"],
                                    long.start, short.end,
                                    long.end, nei.start, nei.end, sep = ":"),
-                             paste(a5ss[,"EnsID"], "A5SS",  a5ss[,"Nchr"],
+                             paste(gene.symbol, "A5SS",  a5ss[,"Nchr"],
                                    long.end, short.start,
                                    long.start, nei.end, nei.start, sep = ":"))
 
@@ -43,13 +50,14 @@ annotateEvent <- function(ASlist){
         long.end <- strsplit2(a3ss[,"LongEX"], split = "-")[,2]
         nei.start <- strsplit2(a3ss[,"NeighborEX"], split = "-")[,1]
         nei.end <- strsplit2(a3ss[,"NeighborEX"], split = "-")[,2]
+        gene.symbol <- id_to_name[a3ss[,"EnsID"], "name"]
 
         aspedia.id <- ifelse(a3ss[,"Strand"] == "+",
-                             paste(a3ss[,"EnsID"], "A3SS", a3ss[,"Nchr"],
+                             paste(gene.symbol, "A3SS", a3ss[,"Nchr"],
                                    nei.start, nei.end,
                                    long.start, short.start, long.end,
                                    sep = ":"),
-                             paste(a3ss[,"EnsID"], "A3SS",
+                             paste(gene.symbol, "A3SS",
                                    a3ss[,"Nchr"], nei.end, nei.start, long.end,
                                    short.end, long.start, sep = ":"))
 
@@ -65,13 +73,14 @@ annotateEvent <- function(ASlist){
         up.end <- strsplit2(se[,"UpEX"], split = "-")[,2]
         down.start <- strsplit2(se[,"DownEX"], split = "-")[,1]
         down.end <- strsplit2(se[,"DownEX"], split = "-")[,2]
+        gene.symbol <- id_to_name[se[,"EnsID"], "name"]
 
         aspedia.id <- ifelse(se[,"Strand"] == "+",
-                             paste(se[,"EnsID"], "SE", se[,"Nchr"],
+                             paste(gene.symbol, "SE", se[,"Nchr"],
                                    down.start, down.end,
                                    first.start, first.end, up.start,
                                    up.end, sep = ":"),
-                             paste(se[,"EnsID"], "SE", se[,"Nchr"],
+                             paste(gene.symbol, "SE", se[,"Nchr"],
                                    up.end, up.start, first.end,
                                    first.start, down.end, down.start,
                                    sep = ":"))
@@ -90,13 +99,14 @@ annotateEvent <- function(ASlist){
         up.end <- strsplit2(mxe[,"UpEX"], split = "-")[,2]
         down.start <- strsplit2(mxe[,"DownEX"], split = "-")[,1]
         down.end <- strsplit2(mxe[,"DownEX"], split = "-")[,2]
+        gene.symbol <- id_to_name[mxe[,"EnsID"], "name"]
 
         aspedia.id <- ifelse(mxe[,"Strand"] == "+",
-                             paste(mxe[,"EnsID"], "MXE", mxe[,"Nchr"],
+                             paste(gene.symbol, "MXE", mxe[,"Nchr"],
                                    down.start, down.end,
                                    first.start, first.end, second.start,
                                    second.end, up.start, up.end, sep = ":"),
-                             paste(mxe[,"EnsID"], "MXE", mxe[,"Nchr"],
+                             paste(gene.symbol, "MXE", mxe[,"Nchr"],
                                    up.end, up.start, second.end,
                                    second.start, first.end, first.start,
                                    down.end, down.start, sep = ":"))
@@ -113,13 +123,14 @@ annotateEvent <- function(ASlist){
         down.end <- strsplit2(ri[,"DownEX"], split = "-")[,2]
         re.start <- strsplit2(ri[,"RetainEX"], split = "-")[,1]
         re.end <- strsplit2(ri[,"RetainEX"], split = "-")[,2]
+        gene.symbol <- id_to_name[ri[,"EnsID"], "name"]
 
         aspedia.id <- ifelse(ri[,"Strand"] == "+",
-                             paste(ri[,"EnsID"], "RI", ri[,"Nchr"],
+                             paste(gene.symbol, "RI", ri[,"Nchr"],
                                    down.start, down.end,
                                    up.start, up.end, sep = ":"),
-                             paste(ri[,"EnsID"], "RI", ri[,"Nchr"],
-                                   ri[,"Nchr"], up.end, up.start, down.end,
+                             paste(gene.symbol, "RI", ri[,"Nchr"],
+                                   up.end, up.start, down.end,
                                    down.start, sep = ":"))
 
         ri <- rbind(cbind(ri, EventID = aspedia.id))
