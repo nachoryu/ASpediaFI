@@ -194,7 +194,7 @@ GSE114922.ASpediaFI <- ASpediaFI()
 
 #Detect and annotate AS events from a subset of the hg38 GTF file
 gtf <- system.file("extdata/GRCh38.subset.gtf", package = "ASpediaFI")
-GSE114922.ASpediaFI$annotateASevents(gtf.file = gtf, num.cores = 3)
+GSE114922.ASpediaFI$annotateASevents(gtf.file = gtf, num.cores = 1)
 sapply(GSE114922.ASpediaFI$events, length)
 head(GSE114922.ASpediaFI$events$SE)
 @
@@ -233,7 +233,7 @@ GSE114922.ASpediaFI$samples <- data.frame(name = c("GSM3167287", "GSM3167290"),
                                           path = c(bamMT, bamWT),
                                           condition = c("MT", "WT"))
 GSE114922.ASpediaFI$quantifyPSI(read.type = "paired", read.length = 100,
-                                insert.size = 300, min.reads = 3, num.cores = 3)
+                                insert.size = 300, min.reads = 3, num.cores = 1)
 tail(assays(GSE114922.ASpediaFI$psi)[[1]])
 @
 
