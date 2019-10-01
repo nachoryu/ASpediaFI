@@ -13,7 +13,6 @@ setOldClass("igraph")
 #' @field as.table a data frame containing AS nodes
 #' @field pathway.table a data frame containing Pathway nodes
 #' @import igraph
-#' @import GenomicRanges
 #' @import methods
 #' @importFrom mGSZ geneSetsList
 #' @importFrom rtracklayer import.gff
