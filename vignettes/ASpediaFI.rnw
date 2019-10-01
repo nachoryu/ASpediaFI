@@ -38,7 +38,6 @@ options(scipen = 1, digits = 2, warn = -1, stringsAsFactors = FALSE,
 \affil[1]{Bioinformatics Branch, Research Institute,
 National Cancer Center, Gyeonggi-do, Republic of Korea}
 
-\date{}
 \maketitle
 \tableofcontents
 \pagebreak
