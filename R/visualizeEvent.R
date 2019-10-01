@@ -16,6 +16,7 @@
 #'@import ggplot2
 #'@import grid
 #'@import SummarizedExperiment
+#'@importFrom limma strsplit2
 #'@importFrom GenomeInfoDb seqlevels
 #'@importFrom Gviz plotTracks DataTrack
 #'@importFrom scales hue_pal
@@ -39,6 +40,8 @@ visualizeEvent <- function(event, gtf, psi = NULL, zoom = NULL) {
 
     if(!is.null(psi) & "condition" %in% colnames(colData(psi)) &
        event %in% rownames(psi)){
+        event.gene <- strsplit2(event, split = ":")[1]
+        event.type <- strsplit2(event, split = ":")[2]
         psidat <- data.frame(PSI = assays(psi)[[1]][event,], Condition =
                                  colData(psi)$condition)
         grid.newpage()
@@ -48,12 +51,14 @@ visualizeEvent <- function(event, gtf, psi = NULL, zoom = NULL) {
                                                           fill = "Condition")) +
                              stat_boxplot(geom = "errorbar") +
                              geom_boxplot() + geom_jitter() +
+                             ggtitle(paste(event.gene, event.type)) +
                              xlab(NULL) + theme_bw() +
                              theme(panel.grid.major = element_blank(),
                                    panel.grid.minor = element_blank(),
                                    legend.key.height = unit(0.1, "npc"),
                                    legend.key.width = unit(0.05, "npc"),
-                                   legend.title.align = 0.5))
+                                   legend.title.align = 0.5,
+                                   plot.title = element_text(hjust = 0.5)))
         grid.draw(bp)
         popViewport(1)
 

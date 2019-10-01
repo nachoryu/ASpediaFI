@@ -33,8 +33,9 @@ pathways}
 \section{Methods}{
 
 \describe{
-\item{\code{analyzeFI(query, expr, ppi = NULL, pathways = NULL, restart, num.folds,
-  num.feats, low.expr, low.var, prop.na, prop.extreme, cor.threshold)}}{Analyze functional interactions of AS events using Discriminative
+\item{\code{analyzeFI(query, expr, ppi = NULL, pathways = NULL, restart = 0.7,
+  num.folds = 5, num.feats = 100, low.expr = 1, low.var = NULL,
+  prop.na = 0.05, prop.extreme = 1, cor.threshold = 0.3)}}{Analyze functional interactions of AS events using Discriminative
  Random Walk with Restart (DRaWR). It runs a DRaWR on a
  heterogeneous network containing genes, AS events, and pathways.
  It then performs GSEA on gene sets related to query genes.
@@ -73,7 +74,7 @@ pathways}
  gene sets using discrminative random walks with restart on
  heterogeneous biological networks. \emph{Bioinformatics}, 32.}}
 
-\item{\code{annotateASevents(gtf.file, num.cores)}}{Detect and annotate AS events from GTF. This function borrows code
+\item{\code{annotateASevents(gtf.file, num.cores = 1)}}{Detect and annotate AS events from GTF. This function borrows code
  from the \code{IVAS} package.
  \subsection{Arguments}{\itemize{
     \item{\code{gtf.file} an input GTF file}
@@ -84,7 +85,16 @@ pathways}
  patterns in human using bioinformatics method.
  \emph{Genes & Genomics}, 39.}}
 
-\item{\code{quantifyPSI(read.type, read.length, insert.size, min.reads, num.cores)}}{Compute PSI values of AS events. This function borrows code from
+\item{\code{exportNetwork(node = NULL, file)}}{Export a subnetwork pertaining to the given pathway to GML format
+ which can be used in Cytoscape. If no pathway is given, the entire
+ final subnetwork is exported.
+\subsection{Arguments}{\itemize{
+\item{\code{node} the name of pathway. If NULL, the entire
+       subnetwork is exported.}
+\item{\code{file} the file name to export the network}}}}
+
+\item{\code{quantifyPSI(read.type = "paired", read.length, insert.size, min.reads = 3,
+  num.cores = 1)}}{Compute PSI values of AS events. This function borrows code from
  the \code{IMAS} package.
  \subsection{Arguments}{\itemize{
      \item{\code{read.type} a type of RNA-seq reads ('single' or
@@ -115,3 +125,19 @@ pathways}
  https://github.com/DiogoVeiga/maser}}
 }}
 
+\examples{
+###Instantiate ASpediaFI reference class
+GSE114922.ASpediaFI <- ASpediaFI()
+
+###Detect and annotate AS events from a subset of GTF file
+#gtf <- system.file("extdata/GRCh38.subset.gtf", package = "ASpediaFI")
+
+###Compute PSI values of AS events
+#bamMT <- system.file("extdata/GSM3167287.subset.bam", package = "ASpediaFI")
+#bamWT <- system.file("extdata/GSM3167290.subset.bam", package = "ASpediaFI")
+#GSE114922.ASpediaFI$samples <- data.frame(name = c("GSM3167287", "GSM3167290"),
+#                                         path = c(bamMT, bamWT),
+#                                         condition = c("MT", "WT"))
+#GSE114922.ASpediaFI$quantifyPSI(read.type = "paired", read.length = 100,
+#                               insert.size = 300, min.reads = 3, num.cores = 3)
+}

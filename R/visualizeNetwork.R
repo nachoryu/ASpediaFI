@@ -8,6 +8,7 @@
 #'by DRaWR.
 #'@param n number of genes and AS events to show
 #'@keywords internal
+#'@return plot of a pathway-specific network
 #'@import igraph
 #'@importFrom graphics par
 #'@importFrom limma strsplit2

@@ -26,7 +26,7 @@ makeGRangesListFromEvent <- function(event, gtf){
                          end = coords[c(2, 3, 5)], strand = strand,
                          exon = c("exon_short", "exon_long", "exon_flanking"),
                          GeneID = geneid, geneSymbol = genesymbol,
-                         stringsAsFactors = F)
+                         stringsAsFactors = FALSE)
         grl <- makeGRangesListFromDataFrame(df, split.field = "exon",
                                             keep.extra.columns = TRUE)
         grl <- grl[c("exon_long", "exon_short", "exon_flanking")]
@@ -37,7 +37,7 @@ makeGRangesListFromEvent <- function(event, gtf){
                          end = coords[c(2, 5, 5)], strand = strand,
                          exon = c("exon_flanking", "exon_long", "exon_short"),
                          GeneID = geneid, geneSymbol = genesymbol,
-                         stringsAsFactors = F)
+                         stringsAsFactors = FALSE)
         grl <- makeGRangesListFromDataFrame(df, split.field = "exon",
                                             keep.extra.columns = TRUE)
         grl <- grl[c("exon_long", "exon_short", "exon_flanking")]
@@ -49,7 +49,7 @@ makeGRangesListFromEvent <- function(event, gtf){
                          exon = c("exon_target", "exon_upstream",
                                   "exon_downstream"),
                          GeneID = geneid, geneSymbol = genesymbol,
-                         stringsAsFactors = F)
+                         stringsAsFactors = FALSE)
         grl <- makeGRangesListFromDataFrame(df, split.field = "exon",
                                             keep.extra.columns = TRUE)
         grl <- grl[c("exon_target", "exon_upstream", "exon_downstream")]
@@ -61,7 +61,7 @@ makeGRangesListFromEvent <- function(event, gtf){
                          exon = c("exon_upstream", "exon_1", "exon_2",
                                   "exon_downstream"),
                          GeneID = geneid, geneSymbol = genesymbol,
-                         stringsAsFactors = F)
+                         stringsAsFactors = FALSE)
         grl <- makeGRangesListFromDataFrame(df, split.field = "exon",
                                             keep.extra.columns = TRUE)
         grl <- grl[c("exon_1", "exon_2", "exon_upstream", "exon_downstream")]
@@ -73,7 +73,7 @@ makeGRangesListFromEvent <- function(event, gtf){
                          exon = c("exon_ir", "exon_upstream",
                                   "exon_downstream"),
                          GeneID = geneid, geneSymbol = genesymbol,
-                         stringsAsFactors = F)
+                         stringsAsFactors = FALSE)
         grl <- makeGRangesListFromDataFrame(df, split.field = "exon",
                                             keep.extra.columns = TRUE)
         grl <- grl[c("exon_ir", "exon_upstream", "exon_downstream")]

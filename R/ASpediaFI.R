@@ -17,7 +17,23 @@ setOldClass("igraph")
 #' @import methods
 #' @importFrom mGSZ geneSetsList
 #' @importFrom rtracklayer import.gff
+#' @export ASpediaFI
 #' @exportClass ASpediaFI
+#' @examples
+#' ###Instantiate ASpediaFI reference class
+#' GSE114922.ASpediaFI <- ASpediaFI()
+#'
+#' ###Detect and annotate AS events from a subset of GTF file
+#' #gtf <- system.file("extdata/GRCh38.subset.gtf", package = "ASpediaFI")
+#'
+#' ###Compute PSI values of AS events
+#' #bamMT <- system.file("extdata/GSM3167287.subset.bam", package = "ASpediaFI")
+#' #bamWT <- system.file("extdata/GSM3167290.subset.bam", package = "ASpediaFI")
+#' #GSE114922.ASpediaFI$samples <- data.frame(name = c("GSM3167287", "GSM3167290"),
+#' #                                         path = c(bamMT, bamWT),
+#' #                                         condition = c("MT", "WT"))
+#' #GSE114922.ASpediaFI$quantifyPSI(read.type = "paired", read.length = 100,
+#' #                               insert.size = 300, min.reads = 3, num.cores = 3)
 ASpediaFI <- setRefClass(
     "ASpediaFI",
     fields = list(samples = "data.frame",
@@ -29,7 +45,7 @@ ASpediaFI <- setRefClass(
                   as.table = "data.frame",
                   pathway.table = "data.frame"),
     methods = list(
-        annotateASevents = function(gtf.file, num.cores){
+        annotateASevents = function(gtf.file, num.cores = 1){
             "Detect and annotate AS events from GTF. This function borrows code
              from the \\code{IVAS} package.
              \\subsection{Arguments}{\\itemize{
@@ -41,13 +57,12 @@ ASpediaFI <- setRefClass(
              patterns in human using bioinformatics method.
              \\emph{Genes & Genomics}, 39.}
             "
-            num.cores <- ifelse(is.null(num.cores), 1, num.cores)
             as.list <- detect(gtf.file, num.cores)
             .self$gtf <- import.gff(gtf.file)
             .self$events <- annotate(as.list, .self$gtf)
         },
-        quantifyPSI = function(read.type, read.length, insert.size,
-                               min.reads, num.cores){
+        quantifyPSI = function(read.type = "paired", read.length, insert.size,
+                               min.reads = 3, num.cores = 1){
             "Compute PSI values of AS events. This function borrows code from
              the \\code{IMAS} package.
              \\subsection{Arguments}{\\itemize{
@@ -63,16 +78,13 @@ ASpediaFI <- setRefClass(
              analysis of Multi-omics data for Alternative Splicing.
              R package version 1.8.0.}
             "
-            read.type <- ifelse(is.null(read.type), "paired", read.type)
-            min.reads <- ifelse(is.null(min.reads), 3, min.reads)
-            num.cores <- ifelse(is.null(num.cores), 1, num.cores)
             .self$psi <- quantify(.self$events, .self$samples, read.type,
-                                  read.length, insert.size, min.reads,
-                                  num.cores)
+                                  read.length, insert.size, min.reads, num.cores)
         },
-        analyzeFI = function(query, expr, ppi = NULL, pathways = NULL, restart,
-                             num.folds, num.feats, low.expr, low.var, prop.na,
-                             prop.extreme, cor.threshold){
+        analyzeFI = function(query, expr, ppi = NULL, pathways = NULL,
+                             restart = 0.7, num.folds = 5, num.feats = 100,
+                             low.expr = 1, low.var = NULL, prop.na = 0.05,
+                             prop.extreme = 1, cor.threshold = 0.3){
             "Analyze functional interactions of AS events using Discriminative
              Random Walk with Restart (DRaWR). It runs a DRaWR on a
              heterogeneous network containing genes, AS events, and pathways.
@@ -112,13 +124,13 @@ ASpediaFI <- setRefClass(
              gene sets using discrminative random walks with restart on
              heterogeneous biological networks. \\emph{Bioinformatics}, 32.}
             "
-            restart <- ifelse(is.null(restart), 0.7, restart)
-            num.folds <- ifelse(is.null(num.folds), 5, num.folds)
-            num.feats <- ifelse(is.null(num.feats), 100, num.feats)
-            low.expr <- ifelse(is.null(low.expr), 1, low.expr)
-            prop.na <- ifelse(is.null(prop.na), 0.05, prop.na)
-            prop.extreme <- ifelse(is.null(prop.extreme), 1, prop.extreme)
-            cor.threshold <- ifelse(is.null(cor.threshold), 0.3, cor.threshold)
+
+            if(is.null(ppi)){
+                ppi <- ppi.human
+            }
+            if(is.null(pathways)){
+                pathways <- pathways.human
+            }
 
             if(!is(pathways, "list")){
                 pathways <- geneSetsList(pathways)
@@ -150,11 +162,38 @@ ASpediaFI <- setRefClass(
              Alternative Splicing Events to pRoteins. R package version 1.2.0.
              https://github.com/DiogoVeiga/maser}
             "
-            if(node %in% .self$as.table$node){
+            if(node %in% .self$as.table$EventID){
                 visualizeEvent(node, .self$gtf, .self$psi, zoom)
             }
-            if(node %in% .self$pathway.table$node){
+            if(node %in% .self$pathway.table$Pathway){
                 visualizeNetwork(node, .self$network, n)
+            }
+        },
+        exportNetwork = function(node = NULL, file){
+            "Export a subnetwork pertaining to the given pathway to GML format
+             which can be used in Cytoscape. If no pathway is given, the entire
+             final subnetwork is exported.
+            \\subsection{Arguments}{\\itemize{
+            \\item{\\code{node} the name of pathway. If NULL, the entire
+                   subnetwork is exported.}
+            \\item{\\code{file} the file name to export the network}}}
+            "
+            if(is.null(node)){
+                write_graph(.self$network, file, "gml")
+            }
+            else{
+                neighbor.genes <- neighbors(.self$network, node, "all")
+                AS.vs <- V(.self$network)[V(.self$network)$type == "AS"]
+                neighbor.AS <- unique(unlist(sapply(neighbor.genes, function(x){
+                    tmp <- neighbors(.self$network, x, "all")
+                    tmp <- tmp$name[tmp$type == "AS"]
+                    tmp
+                })))
+                neighbor.AS <- AS.vs[AS.vs$name %in% neighbor.AS]
+                subnet <- suppressWarnings(subgraph(.self$network,
+                                                    c(neighbor.genes,
+                                                      neighbor.AS)))
+                write_graph(subnet, file, "gml")
             }
         }
     )

@@ -16,7 +16,7 @@ annotate <- function(ASlist, gtf){
     ri <- ASlist$RI
 
     id_to_name <- data.frame(id = gtf$gene_id, name = gtf$gene_name,
-                             stringsAsFactors = F)
+                             stringsAsFactors = FALSE)
     id_to_name <- unique(id_to_name)
     rownames(id_to_name) <- id_to_name$id
 

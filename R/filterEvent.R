@@ -225,7 +225,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
                                                     snei.skipped.tx, "TXID"]
                         for(x in skipped){
                             exons <- as.matrix(data.frame(Exon.info[[as.character(x)]],
-                                                          stringsAsFactors = F))
+                                                          stringsAsFactors = FALSE))
                             exons <- cbind(exons, locus = paste(exons[,"start"],
                                                                 exons[,"end"],
                                                                 sep = "-"))
@@ -240,7 +240,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
                         included <- each.tx.info[each.tx.info$TXNAME %in% snei.included.tx, "TXID"]
                         for(x in included){
                             exons <- as.matrix(data.frame(Exon.info[[as.character(x)]],
-                                                          stringsAsFactors = F))
+                                                          stringsAsFactors = FALSE))
                             exons <- cbind(exons, locus = paste(exons[,"start"],
                                                                 exons[,"end"],
                                                                 sep = "-"))
@@ -277,7 +277,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
                         skipped <- each.tx.info[each.tx.info$TXNAME %in% lnei.skipped.tx, "TXID"]
                         for(x in skipped){
                             exons <- as.matrix(data.frame(Exon.info[[as.character(x)]],
-                                                          stringsAsFactors = F))
+                                                          stringsAsFactors = FALSE))
                             exons <- cbind(exons, locus = paste(exons[,"start"],
                                                                 exons[,"end"],
                                                                 sep = "-"))
@@ -292,7 +292,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
                         included <- each.tx.info[each.tx.info$TXNAME %in% lnei.included.tx, "TXID"]
                         for(x in included){
                             exons <- as.matrix(data.frame(Exon.info[[as.character(x)]],
-                                                          stringsAsFactors = F))
+                                                          stringsAsFactors = FALSE))
                             exons <- cbind(exons, locus = paste(exons[,"start"],
                                                                 exons[,"end"],
                                                                 sep = "-"))

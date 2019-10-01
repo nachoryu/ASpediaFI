@@ -88,9 +88,6 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
 
 
     #Network component 1: gene-gene
-    if(is.null(ppi)){
-        ppi <- ppi.human
-    }
     exp.mat <- rbind(exp.mat[intersect(rownames(exp.mat),
                                        unique(names(V(ppi)))),])
     universe.genes <- rownames(exp.mat)
@@ -118,9 +115,6 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
     rm(corr, corr.ep, corr.melt, exprpsi)
 
     #Network component 3: gene-pathway
-    if(is.null(pathways)){
-        pathways <- pathways.human
-    }
     num.neighbors <- sapply(pathways, function(x) sum(universe.genes %in% x))
     pathways <- pathways[num.neighbors > 10]
     gpw <- NULL
@@ -155,20 +149,50 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
                           num.feats = num.feats,
                           num.folds = num.folds)
 
-    gene.table <- data.frame(drawr.result$genes, stringsAsFactors = F)
-    gene.table$prob <- as.numeric(gene.table$prob)
+    #Gene table
+    gene.table <- drawr.result$genes
+    gene.table$GeneSymbol <- gene.table$node
+    gene.table$Probability <- as.numeric(gene.table$prob)
+    gene.table <- gene.table[,c("GeneSymbol", "Probability")]
+    gene.nodes <- gene.table$GeneSymbol
+
+    #AS event table
     as.table <- drawr.result$features[drawr.result$features$type == "AS",]
-    as.table$prob <- as.numeric(as.table$prob)
-    as.table <- as.table[,c("node", "prob")]
+    as.table$EventID <- as.table$node
+    as.table$Probability <- as.numeric(as.table$prob)
+    as.table$GeneSymbol <- strsplit2(as.table$EventID, split = ":")[,1]
+    as.table$EventType <- strsplit2(as.table$EventID, split = ":")[,2]
+    as.table$Rank <- 1:nrow(as.table)
+    as.table <- as.table[,c("EventID", "GeneSymbol", "EventType", "Rank",
+                            "Probability")]
+    rownames(as.table) <- 1:nrow(as.table)
+    as.nodes <- as.table$EventID
+
+    if("condition" %in% colnames(colData(psi))){
+
+        conds <- unique(colData(psi)$condition)
+        for(x in conds){
+
+            as.table <- cbind(as.table,
+                              apply(psi.mat[as.nodes,
+                                            colnames(psi)[colData(psi)$condition
+                                                          == x]],
+                                    1, function(x) paste(x, collapse = ",")))
+            colnames(as.table)[ncol(as.table)] <- paste0("PSI", ".", x)
+        }
+    }
+
+    #Pathway table
     pathway.table <- drawr.result$features[drawr.result$features$type ==
                                                "Pathway",]
     pathway.table$prob <- as.numeric(pathway.table$prob)
-    pathway.table <- pathway.table[,c("node", "prob")]
+    pathway.table$Pathway <- pathway.table$node
+    pathway.table$Probability <- pathway.table$prob
+    pathway.table$Rank <- 1:nrow(pathway.table)
+    pathway.table <- pathway.table[,c("Pathway", "Rank", "Probability")]
+    pathway.nodes <- pathway.table$Pathway
 
-    gene.nodes <- gene.table$node
-    as.nodes <- as.table$node
-    pathway.nodes <- pathway.table$node
-
+    #Final network
     gg <- gg[gg$X1 %in% gene.nodes & gg$X2 %in% gene.nodes, ]
     gas <- gas[gas$X1 %in% as.nodes & gas$X2 %in% gene.nodes, ]
     gpw <- gpw[gpw$X1 %in% pathway.nodes & gpw$X2 %in% gene.nodes, ]
@@ -184,9 +208,10 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
         type = c(rep("gene", length(gene.nodes)),
                  rep("AS", length(as.nodes)),
                  rep("Pathway", length(pathway.nodes))),
-        prob = c(gene.table$prob, as.table$prob,
-                 pathway.table$prob)
+        prob = c(gene.table$Probability, as.table$Probability,
+                 pathway.table$Probability)
     )
+
     drawr.net <- graph_from_data_frame(edges, directed = FALSE,
                                        vertices = vertices)
 
@@ -196,24 +221,25 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
         tstat <- apply(log2(exp.mat + 1), 1,
                        function(x) t.test(x ~ factor(condition))$statistic)
         gsea <- suppressWarnings(fgsea(pathways, tstat, 10000))
-        gsea <- data.frame(gsea, stringsAsFactors = F)
+        gsea <- data.frame(gsea, stringsAsFactors = FALSE)
         rownames(gsea) <- gsea$pathway
-        pathway.table <- data.frame(row.names = 1:length(pathway.nodes),
-                                    node = pathway.nodes, prob = pathway.table$prob,
-                                    pval = gsea[pathway.nodes, "pval"],
-                                    padj = gsea[pathway.nodes, "padj"],
-                                    ES = gsea[pathway.nodes, "ES"],
-                                    NES = gsea[pathway.nodes, "NES"],
-                                    size = sapply(pathway.nodes, function(x)
-                                        sum(universe.genes %in% pathways[[x]])),
-                                    avg.rank = sapply(pathway.nodes, function(x)
-                                        mean(which(drawr.result$genes$node
-                                                   %in% pathways[[x]]))),
-                                    neighborAS = sapply(pathway.nodes, function(x)
-                                        sum(unique(gas$X1[gas$X2 %in% pathways[[x]]])
-                                            %in% as.nodes)),
-                                    stringsAsFactors = F)
+        pathway.table$Pvalue <- gsea[pathway.nodes, "pval"]
+        pathway.table$Adj.Pvalue <- gsea[pathway.nodes, "padj"]
+        pathway.table$EnrichmentScore <- gsea[pathway.nodes, "ES"]
+        pathway.table$NormalizedEnrichmentScore <- gsea[pathway.nodes, "NES"]
     }
+
+    pathway.table$Size <- sapply(pathways, length)[pathway.nodes]
+    pathway.table$Count <- sapply(pathway.nodes, function(x)
+        sum(universe.genes %in% pathways[[x]]))
+    pathway.table$AvgRank <- sapply(pathway.nodes, function(x)
+        mean(which(drawr.result$genes$node %in% pathways[[x]])))
+    pathway.table$NumEvents = sapply(pathway.nodes, function(x)
+        sum(unique(gas$X1[gas$X2 %in% pathways[[x]]]) %in% as.nodes))
+    pathway.table$Genes <- sapply(pathway.nodes, function(x)
+        paste(sort(universe.genes[universe.genes %in% pathways[[x]]]),
+              collapse = ","))
+    rownames(pathway.table) <- 1:nrow(pathway.table)
 
     return(list(network = drawr.net,
                 gene.table = gene.table,

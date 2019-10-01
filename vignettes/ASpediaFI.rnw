@@ -1,3 +1,7 @@
+%\VignetteIndexEntry{ASpediaFI: Functional Interaction Analysis of AS Events}
+%\VignettePackage{ASpediaFI}
+%\VignetteEngine{knitr::knitr}
+
 \documentclass{article}
 \usepackage{graphicx}
 \usepackage{microtype}
@@ -10,6 +14,7 @@
 \usepackage{parskip}
 \usepackage{caption}
 \geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+\captionsetup{justification=raggedright,singlelinecheck=false}
 \usepackage[table]{xcolor}
 \bibliographystyle{unsrt}
 
@@ -25,6 +30,10 @@ options(scipen = 1, digits = 2, warn = -1, stringsAsFactors = FALSE,
 \title{\texttt{ASpediaFI}: Functional Interaction Analysis of AS Events}
 
 \author[1]{Doyeong Yu}
+\author[1]{Kyubin Lee}
+\author[1]{Daejin Hyung}
+\author[1]{Soo Young Cho}
+\author[1]{Charny Park}
 
 \affil[1]{Bioinformatics Branch, Research Institute,
 National Cancer Center, Gyeonggi-do, Republic of Korea}
@@ -39,30 +48,43 @@ National Cancer Center, Gyeonggi-do, Republic of Korea}
 Alternative splicing (AS) is a key contributor to transcriptome and phenotypic
 diversity. There are hundreds of splicing factors regulating
 AS events which have a significant impact on diverse biological functions.
-However, it is challenging to identify functional events related to a specific
-splicing factor among thousands of them and explore their
-associations with genes and pathways. We developed an R package
-\texttt{ASpediaFI} for a systematic and integrative analysis of
-alternative splicing events and their functional interactions.
+However, it is a challenge to identify functional AS events related to
+spliceosome and to explore interplaying genes corresponding to specific pathway.
+We developed an R package \texttt{ASpediaFI} for a systematic and integrative
+analysis of alternative splicing events and their functional interactions.
 
 \begin{center}
 \includegraphics{Figure1.png}
-\captionof{figure}{Analytic workflow of \texttt{ASpediaFI}}
+\captionof{figure}{(a) Analytic workflow of \texttt{ASpediaFI}. (b)
+Illustration of the two-stage random walk with restart}
+\vspace{2em}
 \end{center}
 
-Figure 1 shows the analytic workflow of \texttt{ASpediaFI}. The workflow
-consists of the following steps:
-\begin{enumerate}
-\item Annotate and quantify AS events.
-\item Prepare gene expression quantification, a gene-gene interaction
-network, and pathway gene sets.
-\item Construct a heterogeneous network comprising gene, AS event, and pathway
-nodes.
-\item Run DRaWR on the heterogeneous network to rank AS events and pathways
-for their relevance to a splicing factor or a gene set of interest.
-\end{enumerate}
-At the end of the workflow, a relevant subnetwork and a ranked list of AS events
-and pathways will be generated for further analysis and visualization.
+Figure 1A shows the analytic workflow of \texttt{ASpediaFI}.
+RNA-Seq BAM files and reference datasets including a GTF file, a gene-gene
+interaction network, and pathway gene sets are required for this workflow.
+The workflow begins with obtaining AS event
+annotations and quantifications. AS event and gene
+expression quantifications, a gene-gene interaction network, and pathway gene
+sets are then used to construct a heterogeneous network which contains multiple
+types of nodes and edges. The initial heterogeneous network (shown in Figure 1B)
+consists of gene nodes and two types of feature nodes: AS event and pathway.
+
+The next step is to run DRaWR (Discriminative Random Walk with Restarts) [1]
+on the heterogeneous network to rank AS events and pathways for their relevance
+to a gene set of interest which is called 'query'. The DRaWR algorithm is
+demonstrated in Figure 1B. Given the heterogeneous network and a query gene set
+(colored in yellow), two stages of random walk with restart (RWR) are performed.
+In the first stage, RWR is run twice on the initial network, one with the query
+gene set and another with all genes in the network as the restart set.
+Feature nodes are ranked by the difference between the converged probability
+distributions in two times of RWR. All feature nodes except top \textit{k}
+ranked nodes are removed to reconstruct a query-specific subnetwork. In the
+second stage, RWR is run on the query-specific subnetwork to obtain final
+rankings of genes and features.
+\texttt{ASpediaFI} provides the user with the final subnetwork and
+ranked lists of genes and features for further analysis including gene set
+enrichment analysis and visualization.
 
 %------------------------------------------------------------
 \section{Installation}
@@ -73,8 +95,6 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install("ASpediaFI")
 @
-
-\pagebreak
 
 %------------------------------------------------------------
 \section{Package contents and overview}
@@ -105,8 +125,8 @@ The \texttt{ASpediaFI} reference class contains the following fields:
 \item \texttt{samples}: a data frame containing information about samples. The
 first three columns should be names, BAM file paths, and conditions.
 \item \texttt{events}: a list of AS events extracted from a GTF file.
-\item \texttt{psi}: a \texttt{SummarizedExperiment} object containing PSI values
-of AS events.
+\item \texttt{psi}: a \texttt{SummarizedExperiment} object containing AS event
+quantification
 \item \texttt{gtf}: a \texttt{GRanges} object containing genomic features
 extracted from a GTF file.
 \item \texttt{network}: an \texttt{igraph} object containing a query-specific
@@ -119,33 +139,32 @@ frames containing gene nodes, AS event nodes, and pathway nodes.
 #Methods of the ASpediaFI reference class
 setdiff(ASpediaFI$methods(), setRefClass("default")$methods())
 @
-Other than default methods provided for all reference classes,
-the \texttt{ASpediaFI} reference class includes the following methods:
+\texttt{ASpediaFI} performs the analysis by stepwise manner using the following
+methods:
 \begin{itemize}
-\item \texttt{detect}: detects AS events from a GTF file and save it in the
-\texttt{events} field. Also extract features from a GTF file and save in the
-\texttt{gtf} field.
-\item \texttt{quantify}: computes PSI values of AS events from BAM files
+\item \texttt{annotateASevents}: detects AS events from a GTF file and save it
+in the \texttt{events} field. Also extract features from a GTF file and save in
+the \texttt{gtf} field.
+\item \texttt{quantifyPSI}: quantifies AS events using BAM files
 specified in the \texttt{samples} field.
-\item \texttt{analyze}: constructs a heterogeneous network of genes, AS events,
-and pathways and performs DRaWR.
+\item \texttt{analyzeFI}: constructs a heterogeneous network of genes,
+AS events, and pathways and performs DRaWR.
 \item \texttt{visualize}: visualizes AS event or pathway nodes.
+\item \texttt{exportNetwork}: exports a subnetwork related to the given
+pathway to GML format which can be directly used in Cytoscape.
 \end{itemize}
-
-\pagebreak
 
 %------------------------------------------------------------
 \subsection{Case study: SF3B1 mutation in myelodysplastic syndrome}
 %------------------------------------------------------------
-In this vignette, we will explore all these functionalities using a
-dataset of myelodysplastic syndrome (MDS) patients from the study GSE114922 [1].
-This dataset contains 82 MDS patient samples, 28 of which harbored SF3B1
-mutations. The RNA-Seq reads from the GEO database were aligned to the
-GRCh38 genome using STAR and quantified using RSEM.
+We provide a case study dataset of myelodysplastic syndrome (MDS) patients,
+GEO accession GSE114922 [2]. This dataset contains 82 MDS patient samples, 28
+of which harbored SF3B1 mutations. We prepared gene expression and PSI profiles
+for the case study.
 
-SF3B1 is one of the most frequently mutated splicing factor in MDS, and
-the study have shown its association with AS events of genes involved in
-heme metabolism. In the following sections, we will walk through the
+In MDS, hotspot mutation of splicing factor SF3B1 is known to induce distinct
+subtype, and the study investigated biological functions regulated by the
+splicing factor mutation. In the following sections, we will walk through the
 \texttt{ASpediaFI} workflow shown in Figure 1 to identify AS events associated
 with SF3B1 mutation and explore their functional interactions.
 
@@ -156,21 +175,31 @@ with SF3B1 mutation and explore their functional interactions.
 %------------------------------------------------------------
 \subsection{Input data preparation}
 %------------------------------------------------------------
+Before starting the workflow, \texttt{ASpediaFI} requires the following data
+files to be prepared:
+\begin{itemize}
+\item a GTF file for gene model
+\item an \texttt{igraph} object containing a gene-gene interaction network
+\item a GMT file containing pathways gene setse
+\item RNA-Seq BAM files
+\end{itemize}
+
 To begin, we instantiate the \texttt{ASpediaFI} class and obtain a list of
-AS event annotations from a GRCh38 GTF file using the \texttt{detect} method.
-Due to file size limitations, we extract AS event annotations from a subset of
-GRCh38 GTF file provided in the \texttt{extdata} directory of the package.
+AS event annotations from a GRCh38 GTF file using the \texttt{annotateASevents}
+method. Due to file size limitations, we extract AS event annotations from a
+subset of GRCh38 GTF file provided in the \texttt{extdata} directory of the
+package.
 <<detectEvent,message=FALSE>>=
 #Instantiate the ASpediaFI reference class
 GSE114922.ASpediaFI <- ASpediaFI()
 
 #Detect and annotate AS events from a subset of the hg38 GTF file
 gtf <- system.file("extdata/GRCh38.subset.gtf", package = "ASpediaFI")
-GSE114922.ASpediaFI$detect(gtf.file = gtf, num.cores = 1)
+GSE114922.ASpediaFI$annotateASevents(gtf.file = gtf, num.cores = 3)
 sapply(GSE114922.ASpediaFI$events, length)
 head(GSE114922.ASpediaFI$events$SE)
 @
-The \texttt{detect} method identifies five types of AS events:
+The \texttt{annotateASevents} method identifies five types of AS events:
 \begin{itemize}
 \item A5SS (alternative 5' splice site)
 \item A3SS (alternative 3' splice site)
@@ -181,46 +210,39 @@ The \texttt{detect} method identifies five types of AS events:
 A list of AS event annotations contains Ensembl ID, chromosome, strand, genomic
 coordinates of exons, and AS event ID. AS event ID is written in the format of
 [gene symbol]:[event type]:[chromosome]:[genomic coordinates of exon boundaries]
-, as defined by ASpedia. The \texttt{detect} method also extracts genomic
-features from a GTF file and save in a \texttt{gtf} field as a \texttt{GRanges}
-object for the visualization of AS events.
+, as defined by ASpedia (https://combio.snu.ac.kr/aspedia/help.html) [3].
+The \texttt{annotateASevents} method also extracts genomic features from a GTF
+file and save in a \texttt{gtf} field as a \texttt{GRanges} object for the
+visualization of AS events.
 
-Next, we quantify AS events from BAM files using the \texttt{quantify} method.
-The \texttt{quantify} method requires the \texttt{samples} field to have three
+Next, we quantify AS events from BAM files using the \texttt{quantifyPSI}
+method. The \texttt{quantifyPSI} method computes PSI (Percentage Spliced In),
+the fraction of mRNAs containing the alternatively spliced exon [4]. It
+requires the \texttt{samples} field to have three
 columns in the following order: name (sample ID), path (BAM file path), and
 condition (sample condition). Also, a type of RNA-Seq reads (single or paired),
 read length, insert size, and a minimum number of reads mapped to a given exon
 need to be specified. At this point, we compute PSI values from a subset of
-one BAM file for demonstration. The \texttt{quantify} method saves PSI values
-in the \texttt{psi} field as a \texttt{SummarizedExperiment} object with sample
-information. Note that row names of PSI values are AS event IDs.
+two BAM files for demonstration. The \texttt{quantifyPSI} method saves PSI
+values in the \texttt{psi} field as a \texttt{SummarizedExperiment} object with
+sample information. Note that row names of PSI values are AS event IDs.
 <<quantifyEvent,message=FALSE>>=
 #Compute PSI values of AS events
-bam <- system.file("extdata/GSM3167287.subset.bam", package = "ASpediaFI")
-GSE114922.ASpediaFI$samples <- data.frame(name = "GSM3167287", path = bam,
-                                          condition = "")
-GSE114922.ASpediaFI$quantify(read.type = "paired", read.length = 100,
-                             insert.size = 300, min.reads = 3, num.cores = 1)
+bamMT <- system.file("extdata/GSM3167287.subset.bam", package = "ASpediaFI")
+bamWT <- system.file("extdata/GSM3167290.subset.bam", package = "ASpediaFI")
+GSE114922.ASpediaFI$samples <- data.frame(name = c("GSM3167287", "GSM3167290"),
+                                          path = c(bamMT, bamWT),
+                                          condition = c("MT", "WT"))
+GSE114922.ASpediaFI$quantifyPSI(read.type = "paired", read.length = 100,
+                                insert.size = 300, min.reads = 3, num.cores = 3)
 tail(assays(GSE114922.ASpediaFI$psi)[[1]])
 @
 
-In addition to AS event annotations and quantifications, the following are
-required for network reconstruction:
-\begin{itemize}
-\item a named list of pathway gene sets
-\item an \texttt{igraph} object containing a gene-gene interaction network
-\item a matrix or \texttt{SummarizedExperiment} object containing gene
-expression profiles (FPKM)
-\end{itemize}
-If the first two inputs are not given, \texttt{ASpediaFI} uses a combined list
-of HALLMARK, KEGG, and REACTOME pathway gene sets and a network with gene
-interactions collected from BIND, DIP, HPRD, and REACTOME. Gene expression
-quantifications must be prepared by the user using quantification tools such as
-RSEM and Cufflinks. Here, we use gene expression profiles of MDS patients
-stored in the package as an example dataset. Since we need sample information
-and AS event quantifications for all samples, we also load the example dataset
-containing PSI values and sample information to update the \texttt{psi} and
-\texttt{samples} fields.
+Since we need PSI and gene expression profiles for all samples to
+construct a heterogeneous network, we load example datasets in the package.
+We update the \texttt{psi} and
+\texttt{samples} fields with PSI values and sample information stored in the
+example dataset.
 <<loadData,message=FALSE>>=
 #Load PSI and gene expression data
 data("GSE114922.fpkm")
@@ -236,75 +258,114 @@ head(GSE114922.ASpediaFI$samples)
 %------------------------------------------------------------
 \subsection{Functional interaction analysis of AS events}
 %------------------------------------------------------------
-The \texttt{analyze} method performs data preprocessing, network construction
-and DRaWR (Discriminative Random Walk with Restart) [2]. AS event and gene
-expression quantifications, a gene-gene interaction network, and pathway gene
-sets are  used to construct a heterogeneous network composed of gene, AS event,
-and pathway nodes. DRaWR is then applied to identify AS events and pathways
-associated with a gene set of interest.
-
-The DRaWR algorithm consists of two stages of random walk with restart (RWR).
-RWR is run on the heterogeneous network twice in the first stage, one with
-a query gene set and another with all genes as the restart set. AS events and
-pathways are ranked by the difference between the converged probability
-distributions in two times of RWR. In the second stage, RWR is run on a
-subnetwork composed of all gene nodes and top \textit{k} ranked feature
-(AS event or pathway) nodes to obtain final rankings of genes and features.
-
-As the DRaWR algorithm requires a query gene set as input, we first perform
-t-test on the gene expression dataset to detect genes differentially expressed
-in SF3B1-mutated samples. These DEGs are used as a query to identify AS events
+The \texttt{analyzeFI} method performs data preprocessing, network construction
+and DRaWR (Discriminative Random Walk with Restart). As the DRaWR algorithm
+requires a query gene set as input, we first detect genes differentially
+expressed in SF3B1-mutated samples using the \texttt{limma} package (other DEG
+analysis tools such as edgeR and DESeq2 can also be used). Assuming DEGs to
+represent a functional gene set, we use them as a query to identify AS events
 and pathways closely related to SF3B1 mutation. If a query is given as a
 character vector, all genes in the query have equal weights. The user can
 attribute distinct weights by providing a data frame containing the weights
 in the second column as a query.
 <<prepareQuery,message=FALSE>>=
 #Choose query genes based on differential expression
-pvalues <- apply(log2(GSE114922.fpkm + 1), 1, function(x)
-    t.test(x ~ GSE114922.ASpediaFI$samples$condition)$p.value)
-query <- names(pvalues)[pvalues < 0.01]
+library(limma)
+
+design <- cbind(WT = 1, MTvsWT = GSE114922.ASpediaFI$samples$condition == "MUT")
+fit <- lmFit(log2(GSE114922.fpkm + 1), design = design)
+fit <- eBayes(fit, trend = TRUE)
+tt <- topTable(fit, number = Inf, coef = "MTvsWT")
+query <- rownames(tt[tt$logFC > 1 &tt$P.Value < 0.1,])
 head(query)
 @
 
-The \texttt{analyze} method allows the user to change options for data
+The \texttt{analyzeFI} method allows the user to change options for data
 preprocessing, network construction, and DRaWR. \texttt{restart} and
 \texttt{num.feats} define a restart probability and the number of features to
-be retained in the final subnetwork. \texttt{num.folds} specifies the number of
-folds in cross-validation for DRaWR. \texttt{low.expr}, \texttt{low.var},
-\texttt{prop.na}, and \texttt{prop.extreme} are options for filtering AS events.
-\texttt{cor.threshold} defines a threshold of Spearman's
-correlation for connecting AS event nodes and gene nodes in a heterogeneous
-network. Please see help(analyzeFI) for details.
-<<analyzeFI,message=FALSE,fig.height=4,fig.cap="Performance of DRaWR",fig.pos="H">>=
+be retained in the final subnetwork. The restart probability is the probability
+of jumping back to the restart set (query). If the restart probability is small,
+the walk tends to move around the neighbors of query nodes [5].
+\texttt{num.folds} specifies the number of folds in cross-validation for DRaWR.
+\texttt{low.expr}, \texttt{low.var}, \texttt{prop.na}, and \texttt{prop.extreme}
+are options for filtering AS events. \texttt{cor.threshold} defines a threshold
+of Spearman's correlation for connecting AS event nodes and gene nodes in a
+heterogeneous network. Please see help(ASpediaFI) for details.
+<<analyzeFI,message=FALSE,fig.height=5,fig.cap="Cross-validation performance of DRaWR",fig.pos="H">>=
 #Perform functional interaction analysis of AS events
-GSE114922.ASpediaFI$analyze(query = query, expr = GSE114922.fpkm,
-                            restart = 0.7, num.folds = 5, num.feats = 100,
-                            low.expr = 1, low.var = NULL, prop.na = 0.05,
-                            prop.extreme = 1, cor.threshold = 0.3)
+GSE114922.ASpediaFI$analyzeFI(query = query, expr = GSE114922.fpkm,
+                              restart = 0.9, num.folds = 5, num.feats = 100,
+                              low.expr = 1, low.var = NULL, prop.na = 0.05,
+                              prop.extreme = 1, cor.threshold = 0.3)
 @
 Figure 2 shows an ROC plot from the cross-validation produced by the
 \texttt{analyze} method. 10\% of a query gene set is held out as a test set,
-and the remaining gene set is used as query. Using the converged probability
-distributions after the first stage and second stage RWR, ROC curves for two
+and the remaining gene set is used as query. Using the stationary probabilities
+of gene nodes after the first stage and second stage RWR, ROC curves for two
 stages are computed.
 
+\pagebreak
 %------------------------------------------------------------
 \subsection{Reporting}
 %------------------------------------------------------------
-The \texttt{analyze} method saves top-ranked AS events and pathways in the
-\texttt{as.table} and \texttt{pathway.table} fields, respectively. If the
-\texttt{samples} field contains information about sample conditions
-(e.g. SF3B1 mutation), the results from gene set enrichment analysis are
-included in the \texttt{pathway.table} field. The column \texttt{avg.rank}
-is the average rank of gene nodes in the corresponding pathway. The last column
-\texttt{neighborAS} is the number of AS event nodes in the final subnetwork
-connected to the pathway.
-<<analysisResult,message=FALSE>>=
+The \texttt{analyzeFI} method saves top-ranked AS events and pathways in the
+\texttt{as.table} and \texttt{pathway.table} fields, respectively.
+\texttt{as.table} contains the information about AS events including
+AS event ID, gene symbol, AS event type, final ranking, stationary probability,
+and PSI values of samples in each condition.
+<<tables,message=FALSE>>=
 #Table of AS nodes in the final subnetwork
-head(GSE114922.ASpediaFI$as.table, 5)
+GSE114922.ASpediaFI$as.table[1:10, 2:5]
 
 #Table of GS nodes in the final subnetwork
-head(GSE114922.ASpediaFI$pathway.table, 5)
+GSE114922.ASpediaFI$pathway.table[1:5, 1:11]
+@
+\texttt{gs.table} includes the following information about pathway nodes:
+\begin{itemize}
+\item \texttt{Pathway}: name of pathway
+\item \texttt{Rank}: final ranking
+\item \texttt{Probability}: stationary probability
+\item \texttt{Pvalue}: GSEA P-value
+\item \texttt{Adj.Pvalue}: GSEA adjusted P-value
+\item \texttt{EnrichmentScore}: enrichment score
+\item \texttt{NormalizedEnrichmentScore}: enrichment score normalized to the
+average of random samples
+\item \texttt{Size}: the number of total genes in the pathway gene set
+\item \texttt{Count}: the number of genes in the pathway gene set that are also
+present in the network
+\item \texttt{AvgRank}: the average final ranking of genes in the pathway gene
+set
+\item \texttt{NumEvents}: the number of AS events in the final subnetwork
+connected to genes in the pathway gene set
+\item \texttt{Genes}: genes in the pathway gene set that are also present in the
+network
+\end{itemize}
+The results from GSEA are included in \texttt{pathway.table} if
+the \texttt{samples} field contains information about sample conditions (e.g.
+SF3B1 mutation).
+
+The \texttt{analyzeFI} method saves the final query-specific subnetwork in the
+\texttt{network} field as an \texttt{igraph} object. The user can explore
+the interactions between AS events and genes as follows:
+<<Network,message=FALSE>>=
+#Extract AS-gene interactions from the final subnetwork
+library(igraph)
+edges <- as_data_frame(GSE114922.ASpediaFI$network)
+AS.gene.interactions <- edges[edges$type == "AS", c("from", "to")]
+
+head(AS.gene.interactions)
+@
+
+\texttt{ASpediaFI} also allows the user to export the entire subnetwork or a
+subnetwork related to specific pathway using the \texttt{exportNetwork} method.
+Given a pathway node, the \texttt{exportNetwork} method extracts a
+pathway-specific network and exports it to GML format which can be directly
+used in Cytoscape. If a pathway node is not given, the entire final subnetwork
+is exported.
+<<Export,message=FALSE>>=
+#Export a pathway-specific subnetwork to GML format
+GSE114922.ASpediaFI$exportNetwork(node = "HALLMARK_HEME_METABOLISM",
+                                  file = "heme_metabolism.gml")
 @
 
 %------------------------------------------------------------
@@ -317,12 +378,12 @@ field must contain a \texttt{GRanges} object with genomic features extracted
 from the GTF file. The genomic region around the AS event can be zoomed by
 setting \texttt{zoom} to \texttt{TRUE}. Figure 3 illustrates the skipped exon of
 HMBS, which has been shown to be associated with SF3B1 mutation in MDS.
-<<VizAS,message=FALSE,fig.pos="H",fig.cap="AS event visualization",fig.height=4.5>>=
+<<VizAS,message=FALSE,fig.pos="H",fig.cap="AS event visualization",fig.height=5.5>>=
 #Visualize AS event
-GSE114922.ASpediaFI$visualize(node = GSE114922.ASpediaFI$as.table$node[2],
+GSE114922.ASpediaFI$visualize(node = GSE114922.ASpediaFI$as.table$EventID[10],
                               zoom = FALSE)
 @
-\pagebreak
+
 If a pathway node is given, the \texttt{visualize} method shows a
 subnetwork consisting of highly ranked gene nodes and AS event nodes connected
 to the given pathway. The user can change the number of gene and AS event nodes
@@ -331,12 +392,18 @@ subnetwork related to the hallmark pathway of heme metabolism which has also
 been shown to be associated with SF3B1 mutation in MDS.
 <<VizGS,message=FALSE,fig.pos="H",fig.cap="Pathway visulization",fig.height=5>>=
 #Visualize nework pertaining to specific pathway
-GSE114922.ASpediaFI$visualize(node = GSE114922.ASpediaFI$pathway.table$node[2],
-                              n = 10)
+GSE114922.ASpediaFI$visualize(node = "HALLMARK_HEME_METABOLISM", n = 10)
 @
+
 
 \renewcommand{\refname}{\section{References}}
 \begin{thebibliography}{1}
+
+\bibitem{drawr}
+Blatti, C. et al. (2016).
+\newblock Characterizing gene sets using discriminative random walks with
+restart on heterogeneous biological networks.
+\newblock {\em Bioinformatics\/}, {\bf 32}, 2167--2175.
 
 \bibitem{gse114922}
 Pellagatti, A. et al. (2018).
@@ -344,11 +411,23 @@ Pellagatti, A. et al. (2018).
 dysregulated genes/pathways and clinical associations.
 \newblock {\em Blood\/}, {\bf 132}, 1225--1240.
 
-\bibitem{drawr}
-Blatti, C. et al. (2016).
-\newblock Characterizing gene sets using discriminative random walks with
-restart on heterogeneous biological networks.
-\newblock {\em Bioinformatics\/}, {\bf 32}, 2167--2175.
+\bibitem{aspedia}
+Hyung, D. et al. (2018).
+\newblock ASpedia: a comprehensive encyclopedia of human alternative splicing.
+\newblock {\em Nucleic acids research\/}, {\bf 46}, D58--D63.
+
+\bibitem{psi}
+Katz, Y. et al. (2018).
+\newblock Analysis and design of RNA sequencing experiments for identifying
+isoform regulation.
+\newblock {\em Nature methods\/}, {\bf 7}, 1009--1015.
+
+\bibitem{rwr}
+Jin, W. et al. (2018).
+\newblock Supervised and extended restart in random walks for ranking and link
+prediction in networks.
+\newblock {\em PloS one\/}, {\bf 14}, e0213857.
+
 
 \end{thebibliography}
 

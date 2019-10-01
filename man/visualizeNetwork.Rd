@@ -14,6 +14,9 @@ by DRaWR.}
 
 \item{n}{number of genes and AS events to show}
 }
+\value{
+plot of a pathway-specific network
+}
 \description{
 This function visualizes a heterogeneous network pertaining to specific
 pathway.

@@ -54,7 +54,7 @@ drawr <- function (query.genes, universe, network, restart,
     tmpweight = c(edges$weight, edges$weight)
     tmptype = c(as.character(edges$type), as.character(edges$type))
     edges = data.frame(tmpsrc, tmptarget, tmpweight, tmptype,
-                       stringsAsFactors = F)
+                       stringsAsFactors = FALSE)
     colnames(edges) = c("src", "target", "weight", "type")
 
     #Normalize edge type
@@ -127,7 +127,6 @@ drawr <- function (query.genes, universe, network, restart,
     nquery = length(queryIDs)
 
     #Cross-validation
-    set.seed(41185)
     folds = sample(cut(seq(1, nquery), breaks = num.folds, labels = FALSE))
 
     perf_b <- new("performance", x.name = "False positive rate",
@@ -200,8 +199,8 @@ drawr <- function (query.genes, universe, network, restart,
         }
         keep = rep(-1, nnodes)
         evaltab = cbind(evaltab, keep)
-        ss = sort(as.numeric(evaltab[featnodes, "diff"]), decreasing = T,
-                  index.return = T)
+        ss = sort(as.numeric(evaltab[featnodes, "diff"]), decreasing = TRUE,
+                  index.return = TRUE)
         sortedfeats = featnodes[ss$ix]
         keepfeats = sortedfeats[1:nkeep]
         evaltab[featnodes, "keep"] = 0
@@ -297,8 +296,8 @@ drawr <- function (query.genes, universe, network, restart,
     evaltab[queryIDs, "test"] = 1
     keep = rep(-1, nnodes)
     evaltab = cbind(evaltab, keep)
-    ss = sort(as.numeric(evaltab[featnodes, "diff"]), decreasing = T,
-              index.return = T)
+    ss = sort(as.numeric(evaltab[featnodes, "diff"]), decreasing = TRUE,
+              index.return = TRUE)
     sortedfeats = featnodes[ss$ix]
     keepfeats = sortedfeats[1:nkeep]
     evaltab[featnodes, "keep"] = 0
@@ -359,7 +358,7 @@ drawr <- function (query.genes, universe, network, restart,
                             fold = as.numeric(restable[,"iter"]),
                             stage = restable[,"stage"],
                             auc = as.numeric(restable[,"aucval"]),
-                            stringsAsFactors = F)
+                            stringsAsFactors = FALSE)
     perftable <- aggregate(auc ~ stage, data = perftable, mean)
 
     auc1 = perftable[perftable$stage == "diff", "auc"]
@@ -378,14 +377,14 @@ drawr <- function (query.genes, universe, network, restart,
                                node = features[1:nkeep,"node"],
                                type = features[1:nkeep,"type"],
                                prob = features[1:nkeep,"stage2"],
-                               stringsAsFactors = F)
+                               stringsAsFactors = FALSE)
 
     #Gene nodes
     genes <- rbind(evaltab[evaltab[,"type"] == "-1",])
     genes <- genes[order(as.numeric(genes[,"stage2"]), decreasing = TRUE),]
     genetable <- data.frame(row.names = 1:nrow(genes), node = genes[, "node"],
                             prob = genes[,"stage2"],
-                            stringsAsFactors = F)
+                            stringsAsFactors = FALSE)
 
     return(list(features = featuretable, genes = genetable))
 
