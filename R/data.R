@@ -11,6 +11,8 @@
 #'@references Pellagatti, A. et al. (2018). Impact of spliceosome mutations on
 #'RNA splicing in myelodysplasia: dysregulated genes/pathways and clinical
 #'associations. \emph{Blood}, 132.
+#'@examples
+#'data(GSE114922.psi)
 "GSE114922.psi"
 
 #'Example gene expression dataset
@@ -24,4 +26,6 @@
 #'@references Pellagatti, A. et al. (2018). Impact of spliceosome mutations on
 #'RNA splicing in myelodysplasia: dysregulated genes/pathways and clinical
 #'associations. \emph{Blood}, 132.
+#'@examples
+#'data(GSE114922.fpkm)
 "GSE114922.fpkm"

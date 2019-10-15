@@ -16,6 +16,7 @@
 #'@importFrom GenomicFeatures exonsBy intronsByTranscript
 #'@importFrom GenomicRanges start end seqnames
 #'@importFrom biomaRt select
+#'@noRd
 detectEventFromTxDb <- function(TxDb, num.cores = 1){
     CalAlt <- function(altInvalue){
         if (length(altInvalue) == 0)

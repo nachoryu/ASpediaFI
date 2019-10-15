@@ -10,6 +10,7 @@
 #'@references Veiga, D. (2019). maser: Mapping Alternative Splicing Events
 #'to pRoteins. R package version 1.2.0. https://github.com/DiogoVeiga/maser
 #'@keywords internal
+#'@noRd
 createAnnotationTrack_transcripts <- function(eventGr, gtf_exons, type){
     if(type == "A3SS"){
         if (as.character(strand(eventGr[1])) == "+") {

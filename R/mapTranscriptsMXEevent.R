@@ -12,6 +12,7 @@
 #'@importFrom GenomicRanges findOverlaps GRanges
 #'@importFrom IRanges IRanges
 #'@importFrom S4Vectors subjectHits
+#'@noRd
 mapTranscriptsMXEevent <- function (eventGr, gtf_exons){
     ovl.e1 <- findOverlaps(eventGr$exon_1, gtf_exons,
                            type = "equal")

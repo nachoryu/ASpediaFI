@@ -10,6 +10,7 @@
 #'to pRoteins. R package version 1.2.0. https://github.com/DiogoVeiga/maser
 #'@keywords internal
 #'@importFrom dplyr filter
+#'@noRd
 createExonTable <- function(gtf_exons, ids){
     transcript_id <- NULL
     res <- filter(as.data.frame(gtf_exons), transcript_id %in%

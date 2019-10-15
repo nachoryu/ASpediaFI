@@ -23,8 +23,7 @@
 <<include=FALSE>>=
 library(knitr)
 opts_chunk$set(concordance = TRUE, comment = NA)
-options(scipen = 1, digits = 2, warn = -1, stringsAsFactors = FALSE,
-        width = 82)
+options(scipen = 1, digits = 2, warn = -1, width = 82)
 @
 
 \title{\texttt{ASpediaFI}: Functional Interaction Analysis of AS Events}
@@ -109,17 +108,16 @@ BiocManager::install("ASpediaFI")
 \item Functional interaction analysis of AS events
 \item Visualization of AS events and pathways
 \end{itemize}
-This package uses a reference class \texttt{ASpediaFI} as a wrapper of its
+This package uses a S4 class \texttt{ASpediaFI} as a wrapper of its
 functionalities (methods) and a container of inputs and outputs
-(fields).
+(slots).
 <<LoadPackage,message=FALSE>>=
 #Load the ASpediaFI package
 library(ASpediaFI)
-
-#Fields of the ASpediaFI reference class
-ASpediaFI$fields()
+names(getSlots("ASpediaFI"))
 @
-The \texttt{ASpediaFI} reference class contains the following fields:
+
+The \texttt{ASpediaFI} class contains the following slots:
 \begin{itemize}
 \item \texttt{samples}: a data frame containing information about samples. The
 first three columns should be names, BAM file paths, and conditions.
@@ -134,10 +132,6 @@ subnetwork as a result of DRaWR.
 frames containing gene nodes, AS event nodes, and pathway nodes.
 \end{itemize}
 
-<<Methods,message=FALSE>>=
-#Methods of the ASpediaFI reference class
-setdiff(ASpediaFI$methods(), setRefClass("default")$methods())
-@
 \texttt{ASpediaFI} performs the analysis by stepwise manner using the following
 methods:
 \begin{itemize}
@@ -183,20 +177,26 @@ files to be prepared:
 \item RNA-Seq BAM files
 \end{itemize}
 
-To begin, we instantiate the \texttt{ASpediaFI} class and obtain a list of
-AS event annotations from a GRCh38 GTF file using the \texttt{annotateASevents}
-method. Due to file size limitations, we extract AS event annotations from a
-subset of GRCh38 GTF file provided in the \texttt{extdata} directory of the
-package.
+To begin, we create the \texttt{ASpediaFI} object using the constructor
+function which requires sample names, paths to RNA-Seq BAM files, and sample
+conditions. We then obtain AS event annotations from a GRCh38 GTF file using
+the \texttt{annotateASevents} method. Due to file size limitations,
+we extract AS event annotations from a subset of GRCh38 GTF file provided in
+the \texttt{extdata} directory of the package.
 <<detectEvent,message=FALSE>>=
-#Instantiate the ASpediaFI reference class
-GSE114922.ASpediaFI <- ASpediaFI()
+#Create ASpediaFI object
+bamMT <- system.file("extdata/GSM3167287.subset.bam", package = "ASpediaFI")
+bamWT <- system.file("extdata/GSM3167290.subset.bam", package = "ASpediaFI")
+GSE114922.ASpediaFI <- ASpediaFI(sample.names = c("GSM3167287", "GSM3167290"),
+                                 bam.files = c(bamMT, bamWT),
+                                 conditions = c("MT", "WT"))
 
 #Detect and annotate AS events from a subset of the hg38 GTF file
 gtf <- system.file("extdata/GRCh38.subset.gtf", package = "ASpediaFI")
-GSE114922.ASpediaFI$annotateASevents(gtf.file = gtf, num.cores = 1)
-sapply(GSE114922.ASpediaFI$events, length)
-head(GSE114922.ASpediaFI$events$SE)
+GSE114922.ASpediaFI <- annotateASevents(GSE114922.ASpediaFI,
+                                        gtf.file = gtf, num.cores = 1)
+sapply(events(GSE114922.ASpediaFI), length)
+head(events(GSE114922.ASpediaFI)$SE)
 @
 The \texttt{annotateASevents} method identifies five types of AS events:
 \begin{itemize}
@@ -210,37 +210,34 @@ A list of AS event annotations contains Ensembl ID, chromosome, strand, genomic
 coordinates of exons, and AS event ID. AS event ID is written in the format of
 [gene symbol]:[event type]:[chromosome]:[genomic coordinates of exon boundaries]
 , as defined by ASpedia (https://combio.snu.ac.kr/aspedia/help.html) [3].
+Note that the \texttt{events} function is available for accessing to AS event
+annotations.
 The \texttt{annotateASevents} method also extracts genomic features from a GTF
-file and save in a \texttt{gtf} field as a \texttt{GRanges} object for the
+file and save in a \texttt{gtf} slot as a \texttt{GRanges} object for the
 visualization of AS events.
 
 Next, we quantify AS events from BAM files using the \texttt{quantifyPSI}
 method. The \texttt{quantifyPSI} method computes PSI (Percentage Spliced In),
-the fraction of mRNAs containing the alternatively spliced exon [4]. It
-requires the \texttt{samples} field to have three
-columns in the following order: name (sample ID), path (BAM file path), and
-condition (sample condition). Also, a type of RNA-Seq reads (single or paired),
-read length, insert size, and a minimum number of reads mapped to a given exon
-need to be specified. At this point, we compute PSI values from a subset of
+the fraction of mRNAs containing the alternatively spliced exon [4].
+The user needs to specify a type of RNA-Seq reads (single or paired),
+read length, insert size, and a minimum number of reads mapped to a given exon.
+At this point, we compute PSI values from a subset of
 two BAM files for demonstration. The \texttt{quantifyPSI} method saves PSI
-values in the \texttt{psi} field as a \texttt{SummarizedExperiment} object with
-sample information. Note that row names of PSI values are AS event IDs.
+values in the \texttt{psi} slot as a \texttt{SummarizedExperiment} object with
+sample information. Similarly, PSI values can be accessed using the \texttt{psi}
+function. Note that row names of PSI values are AS event IDs.
 <<quantifyEvent,message=FALSE>>=
 #Compute PSI values of AS events
-bamMT <- system.file("extdata/GSM3167287.subset.bam", package = "ASpediaFI")
-bamWT <- system.file("extdata/GSM3167290.subset.bam", package = "ASpediaFI")
-GSE114922.ASpediaFI$samples <- data.frame(name = c("GSM3167287", "GSM3167290"),
-                                          path = c(bamMT, bamWT),
-                                          condition = c("MT", "WT"))
-GSE114922.ASpediaFI$quantifyPSI(read.type = "paired", read.length = 100,
-                                insert.size = 300, min.reads = 3, num.cores = 1)
-tail(assays(GSE114922.ASpediaFI$psi)[[1]])
+GSE114922.ASpediaFI <- quantifyPSI(GSE114922.ASpediaFI, read.type = "paired",
+                                   read.length = 100, insert.size = 300,
+                                   min.reads = 3, num.cores = 1)
+tail(assays(psi(GSE114922.ASpediaFI))[[1]])
 @
 
 Since we need PSI and gene expression profiles for all samples to
 construct a heterogeneous network, we load example datasets in the package.
 We update the \texttt{psi} and
-\texttt{samples} fields with PSI values and sample information stored in the
+\texttt{samples} slots with PSI values and sample information stored in the
 example dataset.
 <<loadData,message=FALSE>>=
 #Load PSI and gene expression data
@@ -248,10 +245,10 @@ data("GSE114922.fpkm")
 data("GSE114922.psi")
 
 #Update the "samples" and "psi" fields
-GSE114922.ASpediaFI$psi <- GSE114922.psi
-GSE114922.ASpediaFI$samples <- as.data.frame(colData(GSE114922.psi))
+psi(GSE114922.ASpediaFI) <- GSE114922.psi
+samples(GSE114922.ASpediaFI) <- as.data.frame(colData(GSE114922.psi))
 
-head(GSE114922.ASpediaFI$samples)
+head(samples(GSE114922.ASpediaFI))
 @
 
 %------------------------------------------------------------
@@ -271,10 +268,10 @@ in the second column as a query.
 #Choose query genes based on differential expression
 library(limma)
 
-design <- cbind(WT = 1, MTvsWT = GSE114922.ASpediaFI$samples$condition == "MUT")
+design <- cbind(WT = 1, MvsW = samples(GSE114922.ASpediaFI)$condition == "MUT")
 fit <- lmFit(log2(GSE114922.fpkm + 1), design = design)
 fit <- eBayes(fit, trend = TRUE)
-tt <- topTable(fit, number = Inf, coef = "MTvsWT")
+tt <- topTable(fit, number = Inf, coef = "MvsW")
 query <- rownames(tt[tt$logFC > 1 &tt$P.Value < 0.1,])
 head(query)
 @
@@ -289,13 +286,14 @@ the walk tends to move around the neighbors of query nodes [5].
 \texttt{low.expr}, \texttt{low.var}, \texttt{prop.na}, and \texttt{prop.extreme}
 are options for filtering AS events. \texttt{cor.threshold} defines a threshold
 of Spearman's correlation for connecting AS event nodes and gene nodes in a
-heterogeneous network. Please see help(ASpediaFI) for details.
+heterogeneous network. Please see help(analyzeFI) for details.
 <<analyzeFI,message=FALSE,fig.height=5,fig.cap="Cross-validation performance of DRaWR",fig.pos="H">>=
 #Perform functional interaction analysis of AS events
-GSE114922.ASpediaFI$analyzeFI(query = query, expr = GSE114922.fpkm,
-                              restart = 0.9, num.folds = 5, num.feats = 100,
-                              low.expr = 1, low.var = NULL, prop.na = 0.05,
-                              prop.extreme = 1, cor.threshold = 0.3)
+GSE114922.ASpediaFI <- analyzeFI(GSE114922.ASpediaFI, query = query,
+                                 expr = GSE114922.fpkm, restart = 0.9,
+                                 num.folds = 5, num.feats = 100, low.expr = 1,
+                                 low.var = NULL, prop.na = 0.05,
+                                 prop.extreme = 1, cor.threshold = 0.3)
 @
 Figure 2 shows an ROC plot from the cross-validation produced by the
 \texttt{analyze} method. 10\% of a query gene set is held out as a test set,
@@ -314,10 +312,10 @@ AS event ID, gene symbol, AS event type, final ranking, stationary probability,
 and PSI values of samples in each condition.
 <<tables,message=FALSE>>=
 #Table of AS nodes in the final subnetwork
-GSE114922.ASpediaFI$as.table[1:10, 2:5]
+as.table(GSE114922.ASpediaFI)[1:10, 2:5]
 
 #Table of GS nodes in the final subnetwork
-GSE114922.ASpediaFI$pathway.table[1:5, 1:11]
+pathway.table(GSE114922.ASpediaFI)[1:5, 1:11]
 @
 \texttt{gs.table} includes the following information about pathway nodes:
 \begin{itemize}
@@ -349,7 +347,7 @@ the interactions between AS events and genes as follows:
 <<Network,message=FALSE>>=
 #Extract AS-gene interactions from the final subnetwork
 library(igraph)
-edges <- as_data_frame(GSE114922.ASpediaFI$network)
+edges <- as_data_frame(network(GSE114922.ASpediaFI))
 AS.gene.interactions <- edges[edges$type == "AS", c("from", "to")]
 
 head(AS.gene.interactions)
@@ -363,8 +361,8 @@ used in Cytoscape. If a pathway node is not given, the entire final subnetwork
 is exported.
 <<Export,message=FALSE>>=
 #Export a pathway-specific subnetwork to GML format
-GSE114922.ASpediaFI$exportNetwork(node = "HALLMARK_HEME_METABOLISM",
-                                  file = "heme_metabolism.gml")
+exportNetwork(GSE114922.ASpediaFI, node = "HALLMARK_HEME_METABOLISM",
+              file = "heme_metabolism.gml")
 @
 
 %------------------------------------------------------------
@@ -379,8 +377,8 @@ setting \texttt{zoom} to \texttt{TRUE}. Figure 3 illustrates the skipped exon of
 HMBS, which has been shown to be associated with SF3B1 mutation in MDS.
 <<VizAS,message=FALSE,fig.pos="H",fig.cap="AS event visualization",fig.height=5.5>>=
 #Visualize AS event
-GSE114922.ASpediaFI$visualize(node = GSE114922.ASpediaFI$as.table$EventID[10],
-                              zoom = FALSE)
+visualize(GSE114922.ASpediaFI,
+          node = as.table(GSE114922.ASpediaFI)$EventID[10], zoom = FALSE)
 @
 
 If a pathway node is given, the \texttt{visualize} method shows a
@@ -391,7 +389,7 @@ subnetwork related to the hallmark pathway of heme metabolism which has also
 been shown to be associated with SF3B1 mutation in MDS.
 <<VizGS,message=FALSE,fig.pos="H",fig.cap="Pathway visulization",fig.height=5>>=
 #Visualize nework pertaining to specific pathway
-GSE114922.ASpediaFI$visualize(node = "HALLMARK_HEME_METABOLISM", n = 10)
+visualize(GSE114922.ASpediaFI, node = "HALLMARK_HEME_METABOLISM", n = 10)
 @
 
 

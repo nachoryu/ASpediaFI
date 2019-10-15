@@ -6,6 +6,7 @@
 #'@return a GRangesList object
 #'@keywords internal
 #'@importFrom GenomicRanges makeGRangesListFromDataFrame
+#'@noRd
 makeGRangesListFromEvent <- function(event, gtf){
 
     event <- unlist(strsplit(event, split = ":"))

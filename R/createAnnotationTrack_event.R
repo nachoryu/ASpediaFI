@@ -10,6 +10,7 @@
 #'to pRoteins. R package version 1.2.0. https://github.com/DiogoVeiga/maser
 #'@keywords internal
 #'@importFrom Gviz AnnotationTrack feature
+#'@noRd
 createAnnotationTrack_event <- function(eventGr, type){
     if(type == "A3SS"){
         trackGr <- c(eventGr$exon_flanking, eventGr$exon_long,

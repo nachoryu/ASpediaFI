@@ -11,6 +11,7 @@
 #'to pRoteins. R package version 1.2.0. https://github.com/DiogoVeiga/maser
 #'@keywords internal
 #'@importFrom Gviz GeneRegionTrack
+#'@noRd
 createTxnTrack <- function(res.df, trackLabel, featureName){
     if (nrow(res.df) > 0) {
         res.df$feature <- featureName

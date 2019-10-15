@@ -12,6 +12,7 @@
 #'@import igraph
 #'@importFrom graphics par
 #'@importFrom limma strsplit2
+#'@noRd
 visualizeNetwork <- function(pathway.id, net, n = 10){
 
     neighbor.genes <- neighbors(net, pathway.id, "all")

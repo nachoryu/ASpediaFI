@@ -20,6 +20,7 @@
 #'@importFrom GenomeInfoDb seqlevels
 #'@importFrom Gviz plotTracks DataTrack
 #'@importFrom scales hue_pal
+#'@noRd
 visualizeEvent <- function(event, gtf, psi = NULL, zoom = NULL) {
 
     if(is.null(zoom)){

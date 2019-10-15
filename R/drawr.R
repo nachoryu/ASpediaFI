@@ -21,6 +21,7 @@
 #'discrminative random walks with restart on heterogeneous biological networks
 #'\emph{Bioinformatics}, 32.
 #'@keywords internal
+#'@noRd
 drawr <- function (query.genes, universe, network, restart,
                    num.folds, num.feats) {
 

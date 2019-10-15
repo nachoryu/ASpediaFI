@@ -42,6 +42,7 @@
 #'@importFrom stats t.test var cor
 #'@importFrom e1071 impute
 #'@importFrom methods is
+#'@noRd
 analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
                     restart = 0.7, num.folds = 5, num.feats = 100,
                     low.expr = 1, low.var = NULL, prop.na = 0.05,

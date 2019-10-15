@@ -21,6 +21,7 @@
 #'@keywords internal
 #'@import SummarizedExperiment
 #'@importFrom BiocParallel bplapply SnowParam
+#'@noRd
 quantify <- function(AS.list, sample.info, read.type = "paired",
                      read.length, insert.size, min.reads = 3,
                      num.cores = 1){
@@ -436,17 +437,19 @@ quantify <- function(AS.list, sample.info, read.type = "paired",
     } else{
         colnames(sample.info)[1:2] <- c("name", "path")
     }
-    sample.files <- rbind(sample.info[,"path"])
-    sample.names <- sample.info[,"name"]
+    sample.info$name <- as.character(sample.info$name)
+    sample.info$path <- as.character(sample.info$path)
+    sample.files <- rbind(sample.info$path)
+    sample.names <- sample.info$name
     parm <- SnowParam(workers = num.cores, type = "SOCK")
     final.ra <- Each.Cal.ratio(sample.files, AS.list, splitEnv, cEnv, ins,
                                min.reads, read.length, read.type, parm)
     colnames(final.ra) <- sample.names
-    coldat <- data.frame(row.names = sample.info[,"name"],
-                         bam = sample.info[,"path"],
+    coldat <- data.frame(name = sample.info$name,
+                         path = sample.info$path,
                          stringsAsFactors = FALSE)
-    if("group" %in% colnames(sample.info)){
-        coldat$group <- sample.info[,"condition"]
+    if("condition" %in% colnames(sample.info)){
+        coldat$group <- sample.info$condition
     }
     final.res <- SummarizedExperiment(assays = list(psi = final.ra),
                                       colData = coldat)

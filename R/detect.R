@@ -14,6 +14,7 @@
 #'@importFrom GenomicFeatures makeTxDbFromGFF exonsBy intronsByTranscript
 #'@importFrom biomaRt select
 #'@keywords internal
+#'@noRd
 detect <- function(gtf.file, num.cores){
     gtfdb <- makeTxDbFromGFF(gtf.file)
     total.exon.range <- exonsBy(gtfdb, by = "tx")

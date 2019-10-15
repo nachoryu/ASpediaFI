@@ -15,6 +15,7 @@
 #'@import GenomicFeatures
 #'@importFrom limma strsplit2
 #'@importFrom GenomicRanges start end
+#'@noRd
 filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
 
     ###Extract information relevant to AS genes

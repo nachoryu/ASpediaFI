@@ -7,6 +7,7 @@
 #'@return A list of annotated AS events
 #'@keywords internal
 #'@importFrom limma strsplit2
+#'@noRd
 annotate <- function(ASlist, gtf){
 
     a5ss <- ASlist$A5SS

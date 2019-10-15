@@ -19,6 +19,7 @@
 #'@importFrom Rsamtools ScanBamParam
 #'@importFrom S4Vectors elementMetadata
 #'@keywords internal
+#'@noRd
 SplicingReads <- function(bam.file = NULL, test.exon = NULL, spli.jun = NULL,
                           e.ran = NULL, chr = NULL, read.type = "paired",
                           insert.size = 40){

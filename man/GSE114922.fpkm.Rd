@@ -13,6 +13,9 @@ A matrix containing gene expression values. We downloaded RNA-Seq reads of
 82 MDS patients from GEO database (GSE114922), aligned with STAR, and obtained
 FPKM values using RSEM.
 }
+\examples{
+data(GSE114922.fpkm)
+}
 \references{
 Pellagatti, A. et al. (2018). Impact of spliceosome mutations on
 RNA splicing in myelodysplasia: dysregulated genes/pathways and clinical

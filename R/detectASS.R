@@ -12,6 +12,7 @@
 #'affecting alternative splicing patterns in human using bioinformatics method.
 #'\emph{Genes & Genomics}, 39.
 #'@keywords internal
+#'@noRd
 detectASS <- function(exon.info,intron.info,alt.intron.info){
     alt.intron.info <- alt.intron.info[1,]
     over.ex <- rbind(exon.info[exon.info[,"end"] > alt.intron.info["end"] + 1 &

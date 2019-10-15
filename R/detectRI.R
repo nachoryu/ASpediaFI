@@ -13,6 +13,7 @@
 #'affecting alternative splicing patterns in human using bioinformatics method.
 #'\emph{Genes & Genomics}, 39.
 #'@keywords internal
+#'@noRd
 detectRI <- function(exon.info, intron.info, alt.intron.info, tx.gene = NULL){
     RI.exons <- NULL
     alt.intron.info <- alt.intron.info[1,]
