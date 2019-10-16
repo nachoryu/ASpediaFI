@@ -1,7 +1,7 @@
 Package: ASpediaFI
 Type: Package
 Title: ASpedia-FI: Functional Interaction Analysis of Alternative Splicing Events
-Version: 0.99.5
+Version: 0.99.6
 Date: 2019-10-15
 Author: Doyeong Yu, Kyubin Lee, Daejin Hyung, Soo Young Cho, Charny Park
 Maintainer: Doyeong Yu <nachoryu@ncc.re.kr>

@@ -51,8 +51,8 @@ detectRI <- function(exon.info, intron.info, alt.intron.info, tx.gene = NULL){
     p.downEX <- paste(downEX[,"start"], downEX[,"end"], sep = "-")
     p.upEX <- paste(upEX[,"start"], upEX[,"end"], sep = "-")
     RI.result <- NULL
-    for (i in 1:length(p.upEX)){
-        for (j in 1:length(p.downEX)){
+    for (i in seq_len(length(p.upEX))){
+        for (j in seq_len(length(p.downEX))){
             tested.tx <- tx.gene[tx.gene[tx.gene[,"TXID"] ==
                                              rownames(downEX)[j], "TXSTART"] <=
                                      downEX[j,"start"] &
@@ -106,6 +106,6 @@ detectRI <- function(exon.info, intron.info, alt.intron.info, tx.gene = NULL){
     RI.result[Re.int.test & Re.ex.test, "status"] <- "exist"
     RI.result <- rbind(RI.result[,c("RetainEX", "DownEX", "UpEX", "Types",
                                     "status")])
-    rownames(RI.result) <- 1:nrow(RI.result)
+    rownames(RI.result) <- seq_len(nrow(RI.result))
     return(unique(RI.result))
 }

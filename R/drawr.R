@@ -139,7 +139,7 @@ drawr <- function (query.genes, universe, network, restart,
     perf_s2 <- new("performance", x.name = "False positive rate",
                    y.name = "True positive rate", alpha.name = "Cutoff")
 
-    for (iter in 1:num.folds) {
+    for (iter in seq_len(num.folds)) {
         train_idxs = which(folds != iter)
         train_nidxs = queryIDs[train_idxs]
         ntrain = length(train_nidxs)
@@ -180,14 +180,14 @@ drawr <- function (query.genes, universe, network, restart,
         row = c(iter, "baseline", aucval)
         restable = rbind(restable, row)
         model = prediction(as.numeric(evaltab[testuni, "stage1"]),
-                                 evaltab[testuni, "test"])
+                           evaltab[testuni, "test"])
         auc = performance(model, "auc")
         perf_stage1 = performance(model, "tpr", "fpr")
         aucval = round(as.numeric(slot(auc, "y.values")), 3)
         row = c(iter, "stage1", aucval)
         restable = rbind(restable, row)
         model = prediction(as.numeric(evaltab[testuni, "diff"]),
-                                 evaltab[testuni, "test"])
+                           evaltab[testuni, "test"])
         auc = performance(model, "auc")
         perf_diff = performance(model, "tpr", "fpr")
         aucval = round(as.numeric(slot(auc, "y.values")), 3)
@@ -203,7 +203,7 @@ drawr <- function (query.genes, universe, network, restart,
         ss = sort(as.numeric(evaltab[featnodes, "diff"]), decreasing = TRUE,
                   index.return = TRUE)
         sortedfeats = featnodes[ss$ix]
-        keepfeats = sortedfeats[1:nkeep]
+        keepfeats = sortedfeats[seq_len(nkeep)]
         evaltab[featnodes, "keep"] = 0
         evaltab[keepfeats, "keep"] = 1
         newedges = edges[which(edges$type %in% setdiff(all_etypes,
@@ -264,7 +264,7 @@ drawr <- function (query.genes, universe, network, restart,
         evaltab = cbind(evaltab, stage2)
         evaltab[nodenames2, "stage2"] = rwr_res$vec[nodenames2]
         model = prediction(as.numeric(evaltab[testuni2, "stage2"]),
-                                 evaltab[testuni2, "test"])
+                           evaltab[testuni2, "test"])
         auc = performance(model, "auc")
         perf_stage2 = performance(model, "tpr", "fpr")
         aucval = round(as.numeric(slot(auc, "y.values")), 3)
@@ -280,7 +280,7 @@ drawr <- function (query.genes, universe, network, restart,
         perf_s2@alpha.values[[iter]] <- unlist(perf_stage2@alpha.values)
     }
 
-    rownames(restable) <- 1:nrow(restable)
+    rownames(restable) <- seq_len(nrow(restable))
 
     #Stage 1 network
     query = blankvec
@@ -300,7 +300,7 @@ drawr <- function (query.genes, universe, network, restart,
     ss = sort(as.numeric(evaltab[featnodes, "diff"]), decreasing = TRUE,
               index.return = TRUE)
     sortedfeats = featnodes[ss$ix]
-    keepfeats = sortedfeats[1:nkeep]
+    keepfeats = sortedfeats[seq_len(nkeep)]
     evaltab[featnodes, "keep"] = 0
     evaltab[keepfeats, "keep"] = 1
     newedges = edges[which(edges$type %in% setdiff(all_etypes,
@@ -355,7 +355,7 @@ drawr <- function (query.genes, universe, network, restart,
     evaltab[nodenames2, "stage2"] = rwr_res$vec[nodenames2]
 
     #Stagewise performance and ROC curves
-    perftable <- data.frame(row.names = 1:nrow(restable),
+    perftable <- data.frame(row.names = seq_len(nrow(restable)),
                             fold = as.numeric(restable[,"iter"]),
                             stage = restable[,"stage"],
                             auc = as.numeric(restable[,"aucval"]),
@@ -374,16 +374,17 @@ drawr <- function (query.genes, universe, network, restart,
     features <- rbind(evaltab[evaltab[,"keep"] == "1",])
     features <- features[order(as.numeric(features[,"stage2"]),
                                decreasing = TRUE),]
-    featuretable <- data.frame(row.names = 1:nkeep,
-                               node = features[1:nkeep,"node"],
-                               type = features[1:nkeep,"type"],
-                               prob = features[1:nkeep,"stage2"],
+    featuretable <- data.frame(row.names = seq_len(nkeep),
+                               node = features[seq_len(nkeep),"node"],
+                               type = features[seq_len(nkeep),"type"],
+                               prob = features[seq_len(nkeep),"stage2"],
                                stringsAsFactors = FALSE)
 
     #Gene nodes
     genes <- rbind(evaltab[evaltab[,"type"] == "-1",])
     genes <- genes[order(as.numeric(genes[,"stage2"]), decreasing = TRUE),]
-    genetable <- data.frame(row.names = 1:nrow(genes), node = genes[, "node"],
+    genetable <- data.frame(row.names = seq_len(nrow(genes)),
+                            node = genes[, "node"],
                             prob = genes[,"stage2"],
                             stringsAsFactors = FALSE)
 

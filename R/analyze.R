@@ -81,8 +81,8 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
     #Exclude AS events with low variance
     psi.var <- apply(psi.mat, 1, var)
     if(is.null(low.var)){
-        psi.mat <- rbind(psi.mat[names(sort(psi.var,decreasing = TRUE))[1:min(nrow(psi.mat),
-                                                                              10000)],])
+        psi.mat <- rbind(psi.mat[names(sort(psi.var,decreasing = TRUE))[seq_len(min(nrow(psi.mat),
+                                                                              10000))],])
     } else {
         psi.mat <- rbind(psi.mat[psi.var >= low.var,])
     }
@@ -105,7 +105,7 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
     #Network component 2: gene-AS
     exprpsi <- t(rbind(log2(exp.mat + 1), psi.mat))
     corr <- cor(exprpsi, method = "spearman")
-    corr.ep <- corr[(nrow(exp.mat) + 1):nrow(corr), 1:nrow(exp.mat)]
+    corr.ep <- corr[(nrow(exp.mat) + 1):nrow(corr), seq_len(nrow(exp.mat))]
     corr.melt <- melt(corr.ep)
     corr.melt <- data.frame(corr.melt, stringsAsFactors = FALSE)
     corr.melt <- corr.melt[!is.na(corr.melt$value),]
@@ -163,10 +163,10 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
     as.table$Probability <- as.numeric(as.table$prob)
     as.table$GeneSymbol <- strsplit2(as.table$EventID, split = ":")[,1]
     as.table$EventType <- strsplit2(as.table$EventID, split = ":")[,2]
-    as.table$Rank <- 1:nrow(as.table)
+    as.table$Rank <- seq_len(nrow(as.table))
     as.table <- as.table[,c("EventID", "GeneSymbol", "EventType", "Rank",
                             "Probability")]
-    rownames(as.table) <- 1:nrow(as.table)
+    rownames(as.table) <- seq_len(nrow(as.table))
     as.nodes <- as.table$EventID
 
     if("condition" %in% colnames(colData(psi))){
@@ -189,7 +189,7 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
     pathway.table$prob <- as.numeric(pathway.table$prob)
     pathway.table$Pathway <- pathway.table$node
     pathway.table$Probability <- pathway.table$prob
-    pathway.table$Rank <- 1:nrow(pathway.table)
+    pathway.table$Rank <- seq_len(nrow(pathway.table))
     pathway.table <- pathway.table[,c("Pathway", "Rank", "Probability")]
     pathway.nodes <- pathway.table$Pathway
 
@@ -240,7 +240,7 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
     pathway.table$Genes <- sapply(pathway.nodes, function(x)
         paste(sort(universe.genes[universe.genes %in% pathways[[x]]]),
               collapse = ","))
-    rownames(pathway.table) <- 1:nrow(pathway.table)
+    rownames(pathway.table) <- seq_len(nrow(pathway.table))
 
     return(list(network = drawr.net,
                 gene.table = gene.table,

@@ -27,7 +27,7 @@ detectASS <- function(exon.info,intron.info,alt.intron.info){
     colnames(left.ex) <- c("id", "start", "end")
     colnames(right.ex) <- c("id", "start", "end")
     left.ex.result <- NULL
-    for(i in 1:nrow(left.ex)){
+    for(i in seq_len(nrow(left.ex))){
         lx <- intron.info[intron.info[,"start"] < left.ex[i, "start"] &
                               intron.info[,"end"] > left.ex[i, "end"],]
         if(length(lx) != 0){
@@ -36,7 +36,7 @@ detectASS <- function(exon.info,intron.info,alt.intron.info){
         }
     }
     right.ex.result <- NULL
-    for(i in 1:nrow(right.ex)){
+    for(i in seq_len(nrow(right.ex))){
         lx <- intron.info[intron.info[, "start"] < right.ex[i, "start"] &
                               intron.info[,"end"] > right.ex[i, "end"],]
         if(length(lx) != 0){
@@ -141,8 +141,8 @@ detectASS <- function(exon.info,intron.info,alt.intron.info){
             long.up.ex <- paste(long.up.tx[,"start"], long.up.tx[,"end"],
                                 sep = "-")
             if (length(long.up.ex) != 0){
-                for (i in 1:length(tar.ex)){
-                    for(j in 1:length(long.ex)){
+                for (i in seq_len(length(tar.ex))){
+                    for(j in seq_len(length(long.ex))){
                         s.tar.ex <- unlist(strsplit(tar.ex[i], "-"))
                         s.tar.up.ex <- unlist(strsplit(tar.up.ex[i], "-"))
                         s.long.ex <- unlist(strsplit(long.ex[j], "-"))
@@ -155,8 +155,8 @@ detectASS <- function(exon.info,intron.info,alt.intron.info){
                             s.long.ex[2] & as.double(s.total.tar.ex[,2]) >=
                             s.long.ex[1]
                         tarex.nums <- grep(s.tar.ex[2], tar.ex)
-                        tarex.des <- paste(sort(unique(tar.ex[is.element(1:length(tar.ex), tarex.nums) & !Re.rm])), collapse = ",")
-                        tarex.up.des <- paste(sort(unique(tar.up.ex[is.element(1:length(tar.ex),tarex.nums) & !Re.rm])), collapse = ",")
+                        tarex.des <- paste(sort(unique(tar.ex[is.element(seq_len(length(tar.ex)), tarex.nums) & !Re.rm])), collapse = ",")
+                        tarex.up.des <- paste(sort(unique(tar.up.ex[is.element(seq_len(length(tar.ex)),tarex.nums) & !Re.rm])), collapse = ",")
                         if (length(which((tarex.nums & !Re.rm) == TRUE)) == 0)
                             next
                         longex.nums <- grep(s.long.ex[2], long.ex)
@@ -204,8 +204,8 @@ detectASS <- function(exon.info,intron.info,alt.intron.info){
             long.up.ex <- paste(long.up.tx[,"start"], long.up.tx[,"end"],
                                 sep = "-")
             if (length(long.up.ex) != 0){
-                for (i in 1:length(tar.ex)){
-                    for(j in 1:length(long.ex)){
+                for (i in seq_len(length(tar.ex))){
+                    for(j in seq_len(length(long.ex))){
                         if(as.double(strsplit(long.ex[j], "-")[[1]][2]) >
                            as.double(strsplit(tar.ex[i], "-")[[1]][1])){
                             s.tar.ex <- as.double(unlist(strsplit(tar.ex[i],
@@ -229,9 +229,9 @@ detectASS <- function(exon.info,intron.info,alt.intron.info){
                                                   collapse = ",")
 
                             longex.nums <- grep(s.long.ex[2],long.ex)
-                            longex.des <- paste(sort(unique(long.ex[is.element(1:length(long.ex), longex.nums) & !Re.rm])), collapse = ",")
-                            longex.up.des <- paste(sort(unique(long.up.ex[is.element(1:length(long.ex), longex.nums) & !Re.rm])),collapse = ",")
-                            if (length(which((is.element(1:length(long.ex),longex.nums) & !Re.rm) == TRUE)) == 0) next
+                            longex.des <- paste(sort(unique(long.ex[is.element(seq_len(length(long.ex)), longex.nums) & !Re.rm])), collapse = ",")
+                            longex.up.des <- paste(sort(unique(long.up.ex[is.element(seq_len(length(long.ex)), longex.nums) & !Re.rm])),collapse = ",")
+                            if (length(which((is.element(seq_len(length(long.ex)),longex.nums) & !Re.rm) == TRUE)) == 0) next
                             tar.mat <- cbind(long.ex[j], tar.ex[i],
                                              long.up.ex[j], tar.up.ex[i],
                                              longex.des, tarex.des,
@@ -302,8 +302,8 @@ detectASS <- function(exon.info,intron.info,alt.intron.info){
             long.down.ex <- paste(long.down.tx[,"start"], long.down.tx[,"end"],
                                   sep = "-")
             if (length(long.down.ex) != 0){
-                for (i in 1:length(tar.ex)){
-                    for(j in 1:length(long.ex)){
+                for (i in seq_len(length(tar.ex))){
+                    for(j in seq_len(length(long.ex))){
                         s.tar.ex <- as.double(unlist(strsplit(tar.ex[i], "-")))
                         s.long.ex <- as.double(unlist(strsplit(long.ex[j],
                                                                "-")))
@@ -319,10 +319,10 @@ detectASS <- function(exon.info,intron.info,alt.intron.info){
                             s.long.ex[1] & as.double(s.total.tar.ex[,1]) <=
                             s.long.ex[2]
                         tarex.nums <- grep(s.tar.ex[1], tar.ex)
-                        tarex.des <- paste(sort(unique(tar.ex[is.element(1:length(tar.ex),
+                        tarex.des <- paste(sort(unique(tar.ex[is.element(seq_len(length(tar.ex)),
                                                                          tarex.nums) & !Re.rm])),
                                            collapse = ",")
-                        tarex.down.des <- paste(sort(unique(tar.down.ex[is.element(1:length(tar.ex), tarex.nums) & !Re.rm])), collapse = ",")
+                        tarex.down.des <- paste(sort(unique(tar.down.ex[is.element(seq_len(length(tar.ex)), tarex.nums) & !Re.rm])), collapse = ",")
                         if (length(which((tarex.nums & !Re.rm) == TRUE)) == 0)
                             next
                         longex.nums <- grep(s.long.ex[1], long.ex)
@@ -369,8 +369,8 @@ detectASS <- function(exon.info,intron.info,alt.intron.info){
             long.down.ex <- paste(long.down.tx[,"start"], long.down.tx[,"end"],
                                   sep = "-")
             if (length(long.down.ex) != 0){
-                for (i in 1:length(tar.ex)){
-                    for(j in 1:length(long.ex)){
+                for (i in seq_len(length(tar.ex))){
+                    for(j in seq_len(length(long.ex))){
                         if(as.double(strsplit(long.ex[j], "-")[[1]][1]) <
                            as.double(strsplit(tar.ex[i], "-")[[1]][2])){
                             s.tar.ex <- as.double(unlist(strsplit(tar.ex[i],
@@ -394,11 +394,11 @@ detectASS <- function(exon.info,intron.info,alt.intron.info){
                                 s.tar.ex[1] & as.double(s.total.long.ex[,1]) <=
                                 s.tar.ex[2]
                             longex.nums <- grep(s.long.ex[1], long.ex)
-                            longex.des <- paste(sort(unique(long.ex[is.element(1:length(long.ex), longex.nums) & !Re.rm])),
+                            longex.des <- paste(sort(unique(long.ex[is.element(seq_len(length(long.ex)), longex.nums) & !Re.rm])),
                                                 collapse = ",")
-                            longex.down.des <- paste(sort(unique(long.down.ex[is.element(1:length(long.ex), longex.nums) & !Re.rm])),
+                            longex.down.des <- paste(sort(unique(long.down.ex[is.element(seq_len(length(long.ex)), longex.nums) & !Re.rm])),
                                                      collapse = ",")
-                            if (length(which((is.element(1:length(long.ex),
+                            if (length(which((is.element(seq_len(length(long.ex)),
                                                          longex.nums) &
                                               !Re.rm) == TRUE)) == 0) next
                             tar.mat <- cbind(long.ex[j], tar.ex[i],

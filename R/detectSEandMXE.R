@@ -24,14 +24,14 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
     fi.exon.num <- grep(alt.intron.info["start"] - 1, exon.info[,"end"])
     se.exon.num <- grep(alt.intron.info["end"] + 1, exon.info[,"start"])
     SE.EX <- NULL
-    for (i in 1:length(fi.exon.num)){
+    for (i in seq_len(length(fi.exon.num))){
         fi.exon <- exon.info[fi.exon.num[i],]
         if (length(which(fi.exon["start"] > intron.info[,"start"] - 1 &
                          fi.exon["end"] < intron.info[,"end"] - 1)) != 0){
             SE.EX <- rbind(SE.EX,fi.exon)
         }
     }
-    for (i in 1:length(se.exon.num)){
+    for (i in seq_len(length(se.exon.num))){
         se.exon <- exon.info[se.exon.num[i],]
         if (length(which(se.exon["start"] > intron.info[,"start"] - 1 &
                          se.exon["end"] < intron.info[,"end"] - 1)) != 0){
@@ -56,7 +56,7 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
     intron.info <- rbind(intron.info[is.element(rownames(intron.info),
                                                 test.tx),])
     if (nrow(intron.info) == 1) rownames(intron.info) <- test.tx
-    rownames(SE.EX) <- 1:nrow(SE.EX)
+    rownames(SE.EX) <- seq_len(nrow(SE.EX))
     get.ES.int.num <- function(tx.cal){
         each.tx.se <- as.double(strsplit(tx.cal,"-")[[1]])
         int.num <- which(intron.info[,"start"] + 1 < each.tx.se[1] &
@@ -69,7 +69,7 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
     ES.int.mat <- cbind(as.double(rownames(intron.info)[ES.int.num]),
                         rbind(intron.info[ES.int.num,]))
     rm.int.num <- NULL
-    for (i in 1:nrow(ES.int.mat)){
+    for (i in seq_len(nrow(ES.int.mat))){
         num.over.exons <- rownames(exon.info)[exon.info[,"start"] >
                                                   ES.int.mat[i, "start"] - 1 &
                                                   exon.info[, "end"] <
@@ -121,7 +121,7 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
                                sep = "-"), get.alt.result)
     pre.alt.result <- NULL
     if (length(alt.result) != 0){
-        for (i in 1:length(alt.result)){
+        for (i in seq_len(length(alt.result))){
             pre.alt.result <- rbind(pre.alt.result, cbind(alt.result[[i]][1],
                                                           alt.result[[i]][2]))
         }
@@ -140,7 +140,7 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
     up2.es.mat <- NULL
     up2.es.mat.2 <- NULL
     if (length(up1.txid) != 0){
-        for (i in 1:length(up1.txid)){
+        for (i in seq_len(length(up1.txid))){
             up1.final.SE.EX <- final.SE.EX[final.SE.EX[,"txid"] == up1.txid[i],]
             min.start <- as.double(min(up1.final.SE.EX[,"start"]))
             max.end <- as.double(max(up1.final.SE.EX[,"end"]))
@@ -212,10 +212,11 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
                                                          pre.up.des[,"end"],
                                                          sep = "-")),
                                               collapse = ",")
-                c(each.ES.mat.2[-5], each.ES.mat.2[1:2], each.ES.mat.2.do.des,
-                  each.ES.mat.2.up.des, each.ES.mat.2[5])
+                c(each.ES.mat.2[-5], each.ES.mat.2[seq_len(2)],
+                  each.ES.mat.2.do.des, each.ES.mat.2.up.des, each.ES.mat.2[5])
             }
-            ES.mat.2 <- do.call(rbind, lapply(1:nrow(ES.mat.2), get.ES.mat.2))
+            ES.mat.2 <- do.call(rbind, lapply(seq_len(nrow(ES.mat.2)),
+                                              get.ES.mat.2))
         }
         le.intron <- rbind(intron.info[intron.info[, "end"] + 1 ==
                                            in.ex["start"],])
@@ -233,7 +234,7 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
         le.exon <- rbind(le.exon[is.element(le.exon[,"txnum"], inExTx),])
         ri.exon <- rbind(ri.exon[is.element(ri.exon[,"txnum"], inExTx),])
         le.ri.exon <- unique(S4Vectors::merge(le.exon, ri.exon, by.x="txnum",
-                                   by.y="txnum")[,2:5])
+                                              by.y="txnum")[,2:5])
         if (nrow(le.ri.exon) != 0){
             get.ES.result <- function(ex.nums){
                 each.le.ri.exon <- rbind(le.ri.exon[ex.nums,])
@@ -253,14 +254,14 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
                       paste(in.ex[-1], collapse = "-"), "NA",
                       p.le.des, p.ri.des, "SE")
             }
-            ES.result <- do.call(rbind, lapply(1:nrow(le.ri.exon),
+            ES.result <- do.call(rbind, lapply(seq_len(nrow(le.ri.exon)),
                                                get.ES.result))
             ES.result <- cbind(ES.result[,1], "NA", rbind(ES.result[,-1]))
             ES.result <- rbind(ES.result, up2.es.mat)
             final.ES.result <- NULL
             if (length(ES.mat.2) != 0){
-                for (i in 1:nrow(ES.result)){
-                    for (j in 1:nrow(ES.mat.2)){
+                for (i in seq_len(nrow(ES.result))){
+                    for (j in seq_len(nrow(ES.mat.2))){
                         final.ES.result <- rbind(final.ES.result,
                                                  c(ES.result[i, -c(3:9)],
                                                    ES.mat.2[j, 3],
@@ -294,8 +295,8 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
     u.do.ex <- unique(ES.mat[ES.mat[,2] == "NA",3])
     u.up.ex <- unique(ES.mat[ES.mat[,2] == "NA",4])
     final.pre.ES.mat <- NULL
-    for (i in 1:length(u.1st.ex)){
-        for (j in 1:length(u.do.ex)){
+    for (i in seq_len(length(u.1st.ex))){
+        for (j in seq_len(length(u.do.ex))){
             if (u.1st.ex[i] == u.do.ex[j])    next
             do.des <- unique(ES.mat[ES.mat[,3] == u.do.ex[j], 7])
             pre.ES.mat <- do.call(rbind, lapply(u.up.ex, function(each.up.ex){
@@ -391,7 +392,8 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
                                               c("DownEX", "UpEX", "Do_des",
                                                 "Up_des", "Types")]))
                 if (length(MXE.ES) != 0){
-                    tar.exs <- matrix(rep(c(paste(mem[1:2], collapse = "-"),
+                    tar.exs <- matrix(rep(c(paste(mem[seq_len(2)],
+                                                  collapse = "-"),
                                             paste(mem[3:4], collapse = "-")),
                                           nrow(MXE.ES)), nrow=nrow(MXE.ES),
                                       byrow = TRUE)
@@ -428,7 +430,7 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
                          paste(do.call(rbind, strsplit(ES.mat[,"1stEX"],
                                                        "-"))[,2],
                                do.call(rbind, strsplit(ES.mat[,"UpEX"],
-                                                      "-"))[,1], sep = "-"))
+                                                       "-"))[,1], sep = "-"))
     po.test.mat <- cbind(po.test.mat,
                          paste(do.call(rbind, strsplit(ES.mat[,"DownEX"],
                                                        "-"))[,2],
@@ -440,7 +442,7 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
     names(intron.info.mat) <- rownames(intron.info)
     exon.info.mat <- paste(exon.info[,"start"], exon.info[,"end"], sep = "-")
     names(exon.info.mat) <- rownames(exon.info)
-    po.over.result <- lapply(1:nrow(po.test.mat), function(total.ptm.num){
+    po.over.result <- lapply(seq_len(nrow(po.test.mat)), function(total.ptm.num){
         ptm <- po.test.mat[total.ptm.num,]
         ptm.test.int <- which(is.element(names(intron.info.mat)[which(intron.info.mat == ptm[1])],
                                          names(intron.info.mat)[which(intron.info.mat == ptm[2])]) == "TRUE")
@@ -451,7 +453,7 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
             total.ptm.num
         }
     })
-    po.over.result <- is.element(1:nrow(ES.mat), unlist(po.over.result))
+    po.over.result <- is.element(seq_len(nrow(ES.mat)), unlist(po.over.result))
     po.over.result <- po.over.result & (ES.mat[,"2ndEX"] == "NA")
     ES.mat[po.over.result, "status"] <- "exist"
     se.exons.num <- ES.mat[, "2ndEX"] != "NA" & ES.mat[,"Types"] == "SE"
@@ -459,7 +461,7 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
     if(length(which(se.exons.num=="TRUE")) != 0){
         es.se.test <- NULL
         es.se.ex <- rbind(ES.mat[se.exons.num,])
-        for (i in 1:nrow(es.se.ex)){
+        for (i in seq_len(nrow(es.se.ex))){
             es.se.1 <- which(is.element(names(exon.info.mat)[which(exon.info.mat == es.se.ex[i, 1])],
                                         names(exon.info.mat)[which(exon.info.mat == es.se.ex[i,2])]) == "TRUE")
             es.se.2 <- which(intron.info.mat == paste(unlist(strsplit(es.se.ex[i,3], "-"))[2],
@@ -491,7 +493,7 @@ detectSEandMXE <- function(exon.info, intron.info, alt.intron.info){
             is.element(mxe.se.4, intron.info.mat)
         ES.mat[which(se.MXE.num == "TRUE")[mxe.se.test], "status"] <- "exist"
     }
-    rownames(ES.mat) <- 1:nrow(ES.mat)
+    rownames(ES.mat) <- seq_len(nrow(ES.mat))
     colnames(ES.mat) <- c("1stEX", "2ndEX", "DownEX", "UpEX", "1st_des",
                           "2nd_des", "Do_des", "Up_des", "Types", "status")
     ES.mat <- rbind(ES.mat[,c("1stEX", "2ndEX", "DownEX", "UpEX", "Types",

@@ -50,7 +50,7 @@ quantify <- function(AS.list, sample.info, read.type = "paired",
             jun.in.normal <- 0
             jun.skip.normal <- 0
             if (AStype == "SE" | AStype == "MXE") {
-                max.p.reads <- exons.l[1:3] + (read.l - 1)
+                max.p.reads <- exons.l[seq_len(3)] + (read.l - 1)
                 fi.in.value <- abs(min((1 + inse + read.l) -
                                            (exons.l[1] + 1), 0))
                 fi.nex.value <- abs(min(exons.l[2] - (read.l + inse), 0))
@@ -433,9 +433,9 @@ quantify <- function(AS.list, sample.info, read.type = "paired",
     final.re <- NULL
     called.packages <- c("GenomicRanges", "GenomicFeatures")
     if(ncol(sample.info) >= 3){
-        colnames(sample.info)[1:3] <- c("name", "path", "condition")
+        colnames(sample.info)[seq_len(3)] <- c("name", "path", "condition")
     } else{
-        colnames(sample.info)[1:2] <- c("name", "path")
+        colnames(sample.info)[seq_len(2)] <- c("name", "path")
     }
     sample.info$name <- as.character(sample.info$name)
     sample.info$path <- as.character(sample.info$path)

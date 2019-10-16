@@ -36,7 +36,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
     #Valdiation for exon skipping
     se <- rbind(se[se[,"1stEX"] != "NA" & se[,"2ndEX"] == "NA",])
     se.genes <- unique(se[,"EnsID"])
-    se.sane <- lapply(1:length(se.genes), function(i){
+    se.sane <- lapply(seq_len(length(se.genes)), function(i){
         each.se <- rbind(se[se[,"EnsID"] == se.genes[i],])
         chr.se <- unique(each.se[,"Nchr"])
         each.se.sane <- NULL
@@ -53,7 +53,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
             exon.mat <- cbind(exon.start, exon.end)
             each.exon.locus <- paste(exon.start, exon.end, sep = "-")
             names(each.exon.locus) <- names(exon.end)
-            sane <- sapply(1:length(each.se.sub[,"1stEX"]), function(each.nums){
+            sane <- sapply(seq_len(length(each.se.sub[,"1stEX"])), function(each.nums){
                 index.num <- each.se.sub[each.nums, "Index"]
                 each.targets <- each.se.sub[each.nums, "1stEX"]
                 each.se.result <- rbind(each.se.sub[each.nums, ])
@@ -93,7 +93,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
     #Validation for mutually exclusive exon
     mxe <- rbind(mxe[mxe[,"1stEX"] != "NA" & mxe[,"2ndEX"] != "NA",])
     mxe.genes <- unique(mxe[,"EnsID"])
-    mxe.sane <- lapply(1:length(mxe.genes), function(i){
+    mxe.sane <- lapply(seq_len(length(mxe.genes)), function(i){
         each.mxe <- rbind(mxe[mxe[,"EnsID"] == mxe.genes[i],])
         chr.mxe <- unique(each.mxe[,"Nchr"])
         each.mxe.sane <- NULL
@@ -110,7 +110,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
             exon.mat <- cbind(exon.start, exon.end)
             each.exon.locus <- paste(exon.start, exon.end, sep = "-")
             names(each.exon.locus) <- names(exon.end)
-            sane <- sapply(1:length(each.mxe.sub[,"1stEX"]), function(each.nums){
+            sane <- sapply(seq_len(length(each.mxe.sub[,"1stEX"])), function(each.nums){
                 index.num <- each.mxe.sub[each.nums, "Index"]
                 each.targets <- each.mxe.sub[each.nums, "1stEX"]
                 each.mxe.result <- rbind(each.mxe.sub[each.nums,])
@@ -162,7 +162,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
     violated <- nomatch.start & nomatch.end
     ass <- rbind(ass[!violated,])
     ass.genes <- unique(ass[,"EnsID"])
-    ass.sane <- lapply(1:length(ass.genes), function(i){
+    ass.sane <- lapply(seq_len(length(ass.genes)), function(i){
         each.ass <- rbind(ass[ass[,"EnsID"] == ass.genes[i],])
         chr.ass <- unique(each.ass[,"Nchr"])
         each.ass.sane <- NULL
@@ -179,7 +179,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
             exon.mat <- cbind(exon.start, exon.end)
             each.exon.locus <- paste(exon.start, exon.end, sep = "-")
             names(each.exon.locus) <- names(exon.end)
-            each.ass.sane.sub <- lapply(1:length(each.ass.sub[,"ShortEX"]), function(each.nums) {
+            each.ass.sane.sub <- lapply(seq_len(length(each.ass.sub[,"ShortEX"])), function(each.nums) {
                 short.ok <- FALSE
                 long.ok <- FALSE
                 index.num <- each.ass.sub[each.nums, "Index"]
@@ -351,7 +351,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
 
     #Validation for IR
     ri.genes <- unique(ri[,"EnsID"])
-    ri.sane <- lapply(1:length(ri.genes), function(i){
+    ri.sane <- lapply(seq_len(length(ri.genes)), function(i){
         each.ri <- rbind(ri[ri[,"EnsID"] == ri.genes[i],])
         chr.ri <- unique(each.ri[,"Nchr"])
         each.ri.sane <- NULL
@@ -367,7 +367,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable){
             exon.mat <- cbind(exon.start, exon.end)
             each.exon.locus <- paste(exon.start, exon.end, sep = "-")
             names(each.exon.locus) <- names(exon.end)
-            sane <- sapply(1:length(each.ri.sub[,"RetainEX"]),function(each.nums){
+            sane <- sapply(seq_len(length(each.ri.sub[,"RetainEX"])),function(each.nums){
                 index.num <- each.ri.sub[each.nums, "Index"]
                 each.targets <- each.ri.sub[each.nums, "RetainEX"]
                 each.ri.result <- rbind(each.ri.sub[each.nums, ])

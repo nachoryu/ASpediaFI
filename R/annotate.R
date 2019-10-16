@@ -40,7 +40,7 @@ annotate <- function(ASlist, gtf){
                                    long.start, nei.end, nei.start, sep = ":"))
 
         a5ss <- rbind(cbind(a5ss, EventID = aspedia.id))
-        rownames(a5ss) <- 1:nrow(a5ss)
+        rownames(a5ss) <- seq_len(nrow(a5ss))
     }
 
     #Annotate A3SS events
@@ -63,7 +63,7 @@ annotate <- function(ASlist, gtf){
                                    short.end, long.start, sep = ":"))
 
         a3ss <- rbind(cbind(a3ss, EventID = aspedia.id))
-        rownames(a3ss) <- 1:nrow(a3ss)
+        rownames(a3ss) <- seq_len(nrow(a3ss))
     }
 
     #Annotate SE events
@@ -87,7 +87,7 @@ annotate <- function(ASlist, gtf){
                                    sep = ":"))
 
         se <- rbind(cbind(se, EventID = aspedia.id))
-        rownames(se) <- 1:nrow(se)
+        rownames(se) <- seq_len(nrow(se))
     }
 
     #Annotate MXE events
@@ -113,7 +113,7 @@ annotate <- function(ASlist, gtf){
                                    down.end, down.start, sep = ":"))
 
         mxe <- rbind(cbind(mxe, EventID = aspedia.id))
-        rownames(mxe) <- 1:nrow(mxe)
+        rownames(mxe) <- seq_len(nrow(mxe))
     }
 
     #Annotate RI events
@@ -135,7 +135,7 @@ annotate <- function(ASlist, gtf){
                                    down.start, sep = ":"))
 
         ri <- rbind(cbind(ri, EventID = aspedia.id))
-        rownames(ri) <- 1:nrow(ri)
+        rownames(ri) <- seq_len(nrow(ri))
     }
 
     return(list(A5SS = a5ss, A3SS = a3ss, SE = se, MXE = mxe, RI = ri))

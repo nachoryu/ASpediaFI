@@ -17,7 +17,7 @@ visualizeNetwork <- function(pathway.id, net, n = 10){
 
     neighbor.genes <- neighbors(net, pathway.id, "all")
     neighbor.genes <- neighbor.genes$name[order(neighbor.genes$prob,
-                                                decreasing = TRUE)][1:n]
+                                                decreasing = TRUE)][seq_len(n)]
     AS.vs <- V(net)[V(net)$type == "AS"]
     neighbor.AS <- unique(unlist(sapply(neighbor.genes, function(x){
         tmp <- neighbors(net, x, "all")
@@ -26,14 +26,14 @@ visualizeNetwork <- function(pathway.id, net, n = 10){
     })))
     neighbor.AS <- AS.vs[AS.vs$name %in% neighbor.AS]
     neighbor.AS <- neighbor.AS$name[order(neighbor.AS$prob,
-                                          decreasing = TRUE)][1:n]
+                                          decreasing = TRUE)][seq_len(n)]
     subnet <- suppressWarnings(subgraph(net, c(neighbor.genes,
                                                neighbor.AS)))
 
     par(mar = c(0, 0, 0, 0))
     V(subnet)$label <- ifelse(V(subnet)$type == "gene", V(subnet)$name,
                               apply(strsplit2(V(subnet)$name,
-                                              split = ":")[,1:2], 1,
+                                              split = ":")[,seq_len(2)], 1,
                                     function(x) paste(x, collapse = "\n")))
     V(subnet)$color <- ifelse(V(subnet)$type == "gene", "white", "lightblue")
     V(subnet)$shape <- ifelse(V(subnet)$type == "gene", "circle", "square")

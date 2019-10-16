@@ -46,14 +46,14 @@ detectEventFromTxDb <- function(TxDb, num.cores = 1){
         colnames(alt.mat.int) <- c("start", "end")
         uni.tx <- unique(rownames(exon.mat))
         final.exon.mat <- NULL
-        for (i in 1:length(uni.tx)){
+        for (i in seq_len(length(uni.tx))){
             each.tx.info <- rbind(exon.mat[rownames(exon.mat) == uni.tx[i],])
             each.tx.mat <- rbind(each.tx.info[order(each.tx.info[,"start"]),])
             if (nrow(each.tx.mat) == 1) rownames(each.tx.mat) <- uni.tx[i]
             final.exon.mat <- rbind(final.exon.mat, each.tx.mat)
         }
         final.intron.mat <- NULL
-        for (i in 1:length(uni.tx)){
+        for (i in seq_len(length(uni.tx))){
             each.tx.info <- rbind(intron.mat[rownames(intron.mat) == uni.tx[i],])
             each.tx.mat <- rbind(each.tx.info[order(each.tx.info[,"start"]),])
             if (nrow(each.tx.mat) == 1) rownames(each.tx.mat) <- uni.tx[i]
@@ -62,9 +62,9 @@ detectEventFromTxDb <- function(TxDb, num.cores = 1){
         final.result.list <- NULL
         total.list.names <- NULL
         result.n <- 1
-        for(i in 1:nrow(alt.mat.int)){
+        for(i in seq_len(nrow(alt.mat.int))){
             ES.result <- detectSEandMXE(final.exon.mat, final.intron.mat,
-                                rbind(alt.mat.int[i,]))
+                                        rbind(alt.mat.int[i,]))
             ES.result <- rbind(ES.result[ES.result[,"status"] == "exist",])
             if (length(ES.result) != 0){
                 final.result.list[[result.n]] <- ES.result
@@ -104,7 +104,7 @@ detectEventFromTxDb <- function(TxDb, num.cores = 1){
         cluster.result <- list(NULL, NULL, NULL)
         names(cluster.result) <- c("ES", "ASS", "RI")
         if (!is.null(final.result.list)){
-            for (each.list.num in 1:length(final.result.list)){
+            for (each.list.num in seq_len(length(final.result.list))){
                 result.type <- unlist(strsplit(names(final.result.list[each.list.num]),
                                                "[.]"))[1]
                 cluster.result[[result.type]] <- unique(rbind(cluster.result[[result.type]],
@@ -112,30 +112,30 @@ detectEventFromTxDb <- function(TxDb, num.cores = 1){
             }
         }
         if (length(cluster.result[["ES"]]) != 0){
-            row.names(cluster.result[["ES"]]) <- 1:nrow(rbind(cluster.result[["ES"]]))
+            row.names(cluster.result[["ES"]]) <- seq_len(nrow(rbind(cluster.result[["ES"]])))
             cluster.result[["ES"]] <- cbind(unique(tx.gene[,"GENEID"]),
-                                                  unique(tx.gene[,"TXCHROM"]),
-                                                  unique(tx.gene[,"TXSTRAND"]),
-                                                  cluster.result[["ES"]])
-            colnames(cluster.result[["ES"]])[1:3] <- c("EnsID", "Nchr",
-                                                             "Strand")
+                                            unique(tx.gene[,"TXCHROM"]),
+                                            unique(tx.gene[,"TXSTRAND"]),
+                                            cluster.result[["ES"]])
+            colnames(cluster.result[["ES"]])[seq_len(3)] <- c("EnsID", "Nchr",
+                                                              "Strand")
         }
         if (length(cluster.result[["ASS"]]) != 0){
-            row.names(cluster.result[["ASS"]]) <- 1:nrow(rbind(cluster.result[["ASS"]]))
+            row.names(cluster.result[["ASS"]]) <- seq_len(nrow(rbind(cluster.result[["ASS"]])))
             cluster.result[["ASS"]] <- cbind(unique(tx.gene[,"GENEID"]),
                                              unique(tx.gene[,"TXCHROM"]),
                                              unique(tx.gene[,"TXSTRAND"]),
                                              cluster.result[["ASS"]])
-            colnames(cluster.result[["ASS"]])[1:3] <- c("EnsID", "Nchr",
-                                                        "Strand")
+            colnames(cluster.result[["ASS"]])[seq_len(3)] <- c("EnsID", "Nchr",
+                                                               "Strand")
         }
         if (length(cluster.result[["RI"]]) != 0){
-            row.names(cluster.result[["RI"]]) <- 1:nrow(rbind(cluster.result[["RI"]]))
+            row.names(cluster.result[["RI"]]) <- seq_len(nrow(rbind(cluster.result[["RI"]])))
             cluster.result[["RI"]] <- cbind(unique(tx.gene[,"GENEID"]),
                                             unique(tx.gene[,"TXCHROM"]),
                                             unique(tx.gene[,"TXSTRAND"]),
                                             cluster.result[["RI"]])
-            colnames(cluster.result[["RI"]])[1:3] <- c("EnsID", "Nchr",
+            colnames(cluster.result[["RI"]])[seq_len(3)] <- c("EnsID", "Nchr",
                                                        "Strand")
         }
         return(cluster.result)
@@ -162,7 +162,7 @@ detectEventFromTxDb <- function(TxDb, num.cores = 1){
     Alt.result <- NULL
     j = NULL
     MP <- SnowParam(workers = num.cores, type="SOCK")
-    for (i in 1:length(Total.chr)){
+    for (i in seq_len(length(Total.chr))){
         print (paste("-------------------Processing : ", Total.chr[i],
                      " -------------------", sep = ""))
         each.chr.db <- chrseparate(TxDb, Total.chr[i])
@@ -189,25 +189,28 @@ detectEventFromTxDb <- function(TxDb, num.cores = 1){
     }
     SE.final <- rbind(ES.finl.result[ES.finl.result[,"Types"] == "SE",])
     if(length(SE.final)){
-        SE.final <- cbind(Index = paste0("SE", 1:nrow(SE.final)), SE.final)
+        SE.final <- cbind(Index = paste0("SE", seq_len(nrow(SE.final))),
+                          SE.final)
     }
     MXE.final <- rbind(ES.finl.result[ES.finl.result[,"Types"] == "MXE",])
     if(length(MXE.final)){
-        MXE.final <- cbind(Index = paste0("MXE", 1:nrow(MXE.final)), MXE.final)
+        MXE.final <- cbind(Index = paste0("MXE", seq_len(nrow(MXE.final))),
+                           MXE.final)
     }
     A5SS.final <- rbind(ASS.finl.result[ASS.finl.result[,"Types"] == "A5SS",])
     if(length(A5SS.final)){
-        A5SS.final <- cbind(Index = paste0("A5SS", 1:nrow(A5SS.final)),
+        A5SS.final <- cbind(Index = paste0("A5SS", seq_len(nrow(A5SS.final))),
                             A5SS.final)
     }
     A3SS.final <- rbind(ASS.finl.result[ASS.finl.result[,"Types"] == "A3SS",])
     if(length(A3SS.final)){
-        A3SS.final <- cbind(Index = paste0("A3SS", 1:nrow(A3SS.final)),
+        A3SS.final <- cbind(Index = paste0("A3SS", seq_len(nrow(A3SS.final))),
                             A3SS.final)
     }
     RI.final <- IR.finl.result
     if(length(RI.final)){
-        RI.final <- cbind(Index = paste0("RI", 1:nrow(RI.final)), RI.final)
+        RI.final <- cbind(Index = paste0("RI", seq_len(nrow(RI.final))),
+                          RI.final)
     }
     return(list(A3SS = A3SS.final, A5SS = A5SS.final, SE = SE.final,
                 MXE = MXE.final, RI = RI.final))
