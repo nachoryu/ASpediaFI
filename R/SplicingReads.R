@@ -116,7 +116,7 @@ SplicingReads <- function(bam.file = NULL, test.exon = NULL, spli.jun = NULL,
                                 function(x) unname(unlist(x)))
         }
         ex.re <- exEnv$ex.test(Pco.Gran, over.mat, pre.re)
-        pre.re <- sapply(pre.re, function(x) length(x))
+        pre.re <- vapply(pre.re, function(x) length(x), numeric(1))
         f.re <- list(pre.re, ex.re)
         names(f.re) <- c("pairedInfo", "exonInfo")
         return(f.re)

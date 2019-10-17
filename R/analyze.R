@@ -113,11 +113,13 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
     rm(corr, corr.ep, corr.melt, exprpsi)
 
     # Network component 3: gene-pathway
-    num.neighbors <- sapply(pathways, function(x) sum(universe.genes %in% x))
+    num.neighbors <- vapply(pathways, function(x) sum(universe.genes %in% x),
+                                numeric(1))
     pathways <- pathways[num.neighbors > 10]
     gpw <- NULL
     for (gid in universe.genes) {
-        pwid <- names(pathways)[sapply(pathways, function(x) gid %in% x)]
+        pwid <- names(pathways)[vapply(pathways, function(x) gid %in% x,
+                                        logical(1))]
         if (length(pwid) > 0) {
             gpw <- rbind(gpw, cbind(pwid, gid))
         }
@@ -221,17 +223,21 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
         pathway.table$NormalizedEnrichmentScore <- gsea[pathway.nodes, "NES"]
     }
 
-    pathway.table$Size <- sapply(pathways, length)[pathway.nodes]
-    pathway.table$Count <- sapply(pathway.nodes,
-                            function(x) sum(universe.genes %in% pathways[[x]]))
-    pathway.table$AvgRank <- sapply(pathway.nodes,
-            function(x) mean(which(drawr.result$genes$node %in% pathways[[x]])))
-    pathway.table$NumEvents <- sapply(pathway.nodes,
+    pathway.table$Size <- vapply(pathways, length, numeric(1))[pathway.nodes]
+    pathway.table$Count <- vapply(pathway.nodes,
+                            function(x) sum(universe.genes %in% pathways[[x]]),
+                                numeric(1))
+    pathway.table$AvgRank <- vapply(pathway.nodes,
+            function(x) mean(which(drawr.result$genes$node %in% pathways[[x]])),
+                numeric(1))
+    pathway.table$NumEvents <- vapply(pathway.nodes,
             function(x) sum(unique(gas$X1[gas$X2 %in% pathways[[x]]]) %in%
-                                                                    as.nodes))
-    pathway.table$Genes <- sapply(pathway.nodes,
+                                                                    as.nodes),
+                numeric(1))
+    pathway.table$Genes <- vapply(pathway.nodes,
             function(x) paste(sort(universe.genes[universe.genes %in%
-                                            pathways[[x]]]), collapse = ","))
+                                            pathways[[x]]]), collapse = ","),
+                character(1))
     rownames(pathway.table) <- seq_len(nrow(pathway.table))
 
     return(list(network = drawr.net, gene.table = gene.table,

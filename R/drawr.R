@@ -304,7 +304,7 @@ drawr <- function(query.genes, universe, network, restart,
                             keepfeats)
     newedges <- rbind(newedges, edges[keepidxs, ])
     tmpnames <- unique(c(as.character(newedges[, 1]),
-                            qas.character(newedges[, 2])))
+                            as.character(newedges[, 2])))
     queryIDs2 <- intersect(queryIDs, tmpnames)
     typetable2 <- NULL
     typetable2 <- aggregate(weight ~ type, data = newedges, FUN = sum)

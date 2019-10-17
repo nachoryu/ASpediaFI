@@ -17,16 +17,18 @@ visualizeNetwork <- function(pathway.id, net, n = 10) {
     neighbor.genes <- neighbors(net, pathway.id, "all")
     neighbor.genes <-
         neighbor.genes$name[order(
-            neighbor.genes$prob, decreasing = TRUE)][seq_len(n)]
+            neighbor.genes$prob, decreasing = TRUE)]
+    neighbor.genes <- neighbor.genes[seq_len(min(n, length(neighbor.genes)))]
     AS.vs <- V(net)[V(net)$type == "AS"]
-    neighbor.AS <- unique(unlist(sapply(neighbor.genes, function(x) {
+    neighbor.AS <- unique(unlist(lapply(neighbor.genes, function(x) {
         tmp <- neighbors(net, x, "all")
         tmp <- tmp$name[tmp$type == "AS"]
         tmp
     })))
     neighbor.AS <- AS.vs[AS.vs$name %in% neighbor.AS]
     neighbor.AS <- neighbor.AS$name[order(neighbor.AS$prob,
-                                            decreasing = TRUE)][seq_len(n)]
+                                            decreasing = TRUE)]
+    neighbor.AS <- neighbor.AS[seq_len(min(n, length(neighbor.AS)))]
     subnet <- suppressWarnings(subgraph(net, c(neighbor.genes, neighbor.AS)))
 
     par(mar = c(0, 0, 0, 0))

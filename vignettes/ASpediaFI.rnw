@@ -233,6 +233,8 @@ GSE114922.ASpediaFI <- quantifyPSI(GSE114922.ASpediaFI, read.type = "paired",
 tail(assays(psi(GSE114922.ASpediaFI))[[1]])
 @
 
+\pagebreak
+
 Since we need PSI and gene expression profiles for all samples to
 construct a heterogeneous network, we load example datasets in the package.
 We update the \texttt{psi} and
@@ -290,7 +292,7 @@ heterogeneous network. Please see help(analyzeFI) for details.
 #Perform functional interaction analysis of AS events
 GSE114922.ASpediaFI <- analyzeFI(GSE114922.ASpediaFI, query = query,
                                     expr = GSE114922.fpkm, restart = 0.9,
-                                    num.folds = 5, num.feats = 100,
+                                    num.folds = 5, num.feats = 200,
                                     low.expr = 1, low.var = 0, prop.na = 0.05,
                                     prop.extreme = 1, cor.threshold = 0.3)
 @
@@ -372,12 +374,16 @@ If the user provides an AS event nodes as input, it produces a plot
 describing the AS event and a boxplot of PSI values. Note that the \texttt{gtf}
 field must contain a \texttt{GRanges} object with genomic features extracted
 from the GTF file. The genomic region around the AS event can be zoomed by
-setting \texttt{zoom} to \texttt{TRUE}. Figure 3 illustrates the skipped exon of
-HMBS, which has been shown to be associated with SF3B1 mutation in MDS.
+setting \texttt{zoom} to \texttt{TRUE}. Figure 3 illustrates the mutually
+exclusive exons of HMBS, which has been shown to be associated with SF3B1 
+mutation in MDS.
 <<VizAS,message=FALSE,fig.pos="H",fig.cap="AS event visualization",fig.height=5.5>>=
-#Visualize AS event
-visualize(GSE114922.ASpediaFI,
-            node = as.table(GSE114922.ASpediaFI)$EventID[7], zoom = FALSE)
+#Check if any event on the HMBS gene is included in the final subnetwork 
+as.nodes <- as.table(GSE114922.ASpediaFI)$EventID
+HMBS.event <- as.nodes[grep("HMBS", as.nodes)]
+  
+#Visualize event
+visualize(GSE114922.ASpediaFI, node = HMBS.event, zoom = FALSE)
 @
 
 If a pathway node is given, the \texttt{visualize} method shows a

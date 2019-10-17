@@ -30,9 +30,9 @@
 #' }
 visualize <- function(object, node, zoom = NULL, n = NULL) {
     if (node %in% as.table(object)$EventID) {
-        visualizeEvent(node, object@gtf, object@psi, zoom)
+        visualizeEvent(node, gtf(object), psi(object), zoom)
     }
     if (node %in% pathway.table(object)$Pathway) {
-        visualizeNetwork(node, object@network, n)
+        visualizeNetwork(node, network(object), n)
     }
 }

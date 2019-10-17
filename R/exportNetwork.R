@@ -20,7 +20,7 @@ exportNetwork <- function(object, node = NULL, file) {
     } else {
         neighbor.genes <- neighbors(object@network, node, "all")
         AS.vs <- V(object@network)[V(object@network)$type == "AS"]
-        neighbor.AS <- unique(unlist(sapply(neighbor.genes, function(x) {
+        neighbor.AS <- unique(unlist(lapply(neighbor.genes, function(x) {
             tmp <- neighbors(object@network, x, "all")
             tmp <- tmp$name[tmp$type == "AS"]
             tmp

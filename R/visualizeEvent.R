@@ -37,9 +37,16 @@ visualizeEvent <- function(event, gtf, psi = NULL, zoom = NULL) {
 
     trackList <- list(eventTrack, txn_tracks$inclusionTrack,
                         txn_tracks$skippingTrack)
+    
+    psi.slot <- FALSE
+    if(!is.null(psi)){
+        if("condition" %in% colnames(colData(psi)) & 
+            event %in% rownames(psi)){
+            psi.slot <- TRUE 
+        }
+    }
 
-    if (!is.null(psi) & "condition" %in% colnames(colData(psi)) &
-            event %in% rownames(psi)) {
+    if (psi.slot) {
         event.gene <- strsplit2(event, split = ":")[1]
         event.type <- strsplit2(event, split = ":")[2]
         psidat <- data.frame(PSI = assays(psi)[[1]][event, ],

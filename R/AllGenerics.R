@@ -85,7 +85,7 @@ setGeneric("gtf", function(object, ...) {
 #' @rdname ASpediaFI-accessor
 #' @export
 setMethod("gtf", "ASpediaFI", function(object) {
-    return(object@psi)
+    return(object@gtf)
 })
 
 #' @rdname ASpediaFI-accessor
@@ -163,7 +163,7 @@ setGeneric("as.table", function(object, ...) {
 #' @rdname ASpediaFI-accessor
 #' @export
 setMethod("as.table", "ASpediaFI", function(object) {
-    return(object@gene.table)
+    return(object@as.table)
 })
 
 #' @rdname ASpediaFI-accessor

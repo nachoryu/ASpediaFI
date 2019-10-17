@@ -52,7 +52,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable) {
             exon.mat <- cbind(exon.start, exon.end)
             each.exon.locus <- paste(exon.start, exon.end, sep = "-")
             names(each.exon.locus) <- names(exon.end)
-            sane <- sapply(seq_len(length(each.se.sub[, "1stEX"])),
+            sane <- vapply(seq_len(length(each.se.sub[, "1stEX"])),
                             function(each.nums) {
                 index.num <- each.se.sub[each.nums, "Index"]
                 each.targets <- each.se.sub[each.nums, "1stEX"]
@@ -79,7 +79,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable) {
                                 as.matrix(each.tx.info["TXID"]),
                                 skipped.tx), "TXNAME"]
                 length(included.tx) != 0 & length(skipped.tx) != 0
-            })
+            }, logical(1))
             each.se.sane <- rbind(each.se.sane, rbind(each.se.sub[sane, ]))
         }
         each.se.sane
@@ -113,7 +113,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable) {
             exon.mat <- cbind(exon.start, exon.end)
             each.exon.locus <- paste(exon.start, exon.end, sep = "-")
             names(each.exon.locus) <- names(exon.end)
-            sane <- sapply(seq_len(length(each.mxe.sub[, "1stEX"])),
+            sane <- vapply(seq_len(length(each.mxe.sub[, "1stEX"])),
                 function(each.nums) {
                 index.num <- each.mxe.sub[each.nums, "Index"]
                 each.targets <- each.mxe.sub[each.nums, "1stEX"]
@@ -141,7 +141,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable) {
                                     each.tx.info["TXID"]),
                                     skipped.tx), "TXNAME"]
                 length(included.tx) != 0 & length(skipped.tx) != 0
-            })
+            }, logical(1))
             each.mxe.sane <- rbind(each.mxe.sane, rbind(each.mxe.sub[sane, ]))
         }
         each.mxe.sane
@@ -395,7 +395,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable) {
             exon.mat <- cbind(exon.start, exon.end)
             each.exon.locus <- paste(exon.start, exon.end, sep = "-")
             names(each.exon.locus) <- names(exon.end)
-            sane <- sapply(seq_len(length(each.ri.sub[, "RetainEX"])),
+            sane <- vapply(seq_len(length(each.ri.sub[, "RetainEX"])),
                 function(each.nums) {
                 index.num <- each.ri.sub[each.nums, "Index"]
                 each.targets <- each.ri.sub[each.nums, "RetainEX"]
@@ -424,7 +424,7 @@ filterEvent <- function(ASlist, total.exon.range, total.intron.range, txTable) {
                 skipped.tx <- each.tx.info[is.element(
                     as.matrix(each.tx.info["TXID"]), skipped.tx), "TXNAME"]
                 length(included.tx) != 0 & length(skipped.tx) != 0
-            })
+            }, logical(1))
             each.ri.sane <- rbind(each.ri.sane, rbind(each.ri.sub[sane, ]))
         }
         each.ri.sane
