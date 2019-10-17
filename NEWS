@@ -1,48 +1,23 @@
-ASpediaFI version 0.99.5
-==============
+Changes in version 0.99.0 (2019-10-01)
++ Submitted to Bioconductor.
 
-    Changes:
+Changes in version 0.99.1 (2019-10-01)
++ Added NEWS file.
 
-    * Replaced "1:" with "seq_len".
+Changes in version 0.99.2 (2019-10-01)
++ Removed .Rproj file
 
-ASpediaFI version 0.99.5
-==============
+Changes in version 0.99.3 (2019-10-01)
++ Fixed package loading issue.
 
-    Changes:
+Changes in version 0.99.4 (2019-10-01)
++ Fixed vignette issue.
 
-    * Implemented S4 class instead of reference class.
+Changes in version 0.99.5 (2019-10-15)
++ Implemented S4 class instead of reference class.
 
-ASpediaFI version 0.99.4
-==============
+Changes in version 0.99.6 (2019-10-16)
++ Replaced "1:" with "seq_len".
 
-    Changes:
-
-    * Fixed vignette issue.
-
-ASpediaFI version 0.99.3
-==============
-
-    Changes:
-
-    * Fixed package loading issue.
-
-ASpediaFI version 0.99.2
-==============
-
-    Changes:
-
-    * Removed .Rproj file.
-
-ASpediaFI version 0.99.1
-==============
-
-    Changes:
-
-    * Added NEWS file.
-
-ASpediaFI version 0.99.0
-==============
-
-    Changes:
-
-    * Submitted to Bioconductor.
+Changes in version 0.99.7 (2019-10-17)
++ Made changes to conform to Bioconductor guidelines

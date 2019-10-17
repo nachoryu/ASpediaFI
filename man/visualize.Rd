@@ -28,13 +28,16 @@ pathway node is given, a subnetwork pertaining to the pathway is
 visualized.
 }
 \examples{
-#Visualize AS event
-#visualize(GSE114922.ASpediaFI,
-#          node = as.table(GSE114922.ASpediaFI)$EventID[1],
-#          zoom = FALSE)
+\dontrun{
+# Visualize AS event
+visualize(GSE114922.ASpediaFI,
+    node = as.table(GSE114922.ASpediaFI)$EventID[1],
+    zoom = FALSE
+)
 
-#Visualize pathway
-#visualize(GSE114922.ASpediaFI, node = "HALLMARK_HEME_METABOLISM", n = 10)
+# Visualize pathway
+visualize(GSE114922.ASpediaFI, node = 'HALLMARK_HEME_METABOLISM', n = 10)
+}
 }
 \references{
 Veiga, D. (2019). maser: Mapping

@@ -1,0 +1,7 @@
+This package provides a subset of GTF file and a subset of RNA-Seq BAM file.
+
+The GRCh38 GTF file was obtained from GENCODE (https://www.gencodegenes.org/human/release_31.html). We extracted a subset of the GTF file only including genomic features of the HMBS gene.
+
+The RNA-Seq BAM file was obtained by aligning the RNA-Seq fastq file to GRCh38 genome using STAR.
+The RNA-Seq fastq file was downloaded from SRA ("https://www.ncbi.nlm.nih.gov/sra?term=SRX4143137") using SRA Toolkit. Similarly, we extracted a subset of the BAM file only including information
+around the HMBS gene.

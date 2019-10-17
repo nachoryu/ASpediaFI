@@ -18,18 +18,21 @@
 #' Alternative Splicing Events to pRoteins. R package version 1.2.0.
 #' https://github.com/DiogoVeiga/maser
 #' @examples
-#' #Visualize AS event
-#' #visualize(GSE114922.ASpediaFI,
-#' #          node = as.table(GSE114922.ASpediaFI)$EventID[1],
-#' #          zoom = FALSE)
+#' \dontrun{
+#' # Visualize AS event
+#' visualize(GSE114922.ASpediaFI,
+#'     node = as.table(GSE114922.ASpediaFI)$EventID[1],
+#'     zoom = FALSE
+#' )
 #'
-#' #Visualize pathway
-#' #visualize(GSE114922.ASpediaFI, node = "HALLMARK_HEME_METABOLISM", n = 10)
-visualize <- function(object, node, zoom = NULL, n = NULL){
-    if(node %in% object@as.table$EventID){
+#' # Visualize pathway
+#' visualize(GSE114922.ASpediaFI, node = 'HALLMARK_HEME_METABOLISM', n = 10)
+#' }
+visualize <- function(object, node, zoom = NULL, n = NULL) {
+    if (node %in% as.table(object)$EventID) {
         visualizeEvent(node, object@gtf, object@psi, zoom)
     }
-    if(node %in% object@pathway.table$Pathway){
+    if (node %in% pathway.table(object)$Pathway) {
         visualizeNetwork(node, object@network, n)
     }
 }

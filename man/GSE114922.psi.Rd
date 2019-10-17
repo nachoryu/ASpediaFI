@@ -4,12 +4,13 @@
 \name{GSE114922.psi}
 \alias{GSE114922.psi}
 \title{Example dataset containing PSI values}
-\format{An object of class \code{SummarizedExperiment} with 10000 rows and 82 columns.}
+\format{An object of class \code{SummarizedExperiment} with 10000 rows and 40 columns.}
 \usage{
 GSE114922.psi
 }
 \description{
-A SummarizedExperiment containing PSI values of 5,000 AS events. We downloaded
+A SummarizedExperiment containing PSI values of 5,000 AS events.
+We downloaded
 RNA-Seq reads of 82 MDS patients from GEO database (GSE114922),
 aligned with STAR, and computed PSI values using rMATS. AS events with a lot
 of missing values or extreme values, or those on genes with low expression

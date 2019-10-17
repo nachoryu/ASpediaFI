@@ -34,51 +34,51 @@
 #' gene sets using discrminative random walks with restart on
 #' heterogeneous biological networks. \emph{Bioinformatics}, 32.
 #' @importFrom mGSZ geneSetsList
+#' @importFrom utils data
 #' @return ASpediaFI object with results of functional interaction analysis
 #' @examples
 #' library(limma)
 #' data(GSE114922.fpkm)
 #' data(GSE114922.psi)
-#' design <- cbind(WT = 1, MvsW = colData(GSE114922.psi)$condition == "MUT")
+#' design <- cbind(WT = 1, MvsW = colData(GSE114922.psi)$condition == 'MUT')
 #' fit <- lmFit(log2(GSE114922.fpkm + 1), design = design)
 #' fit <- eBayes(fit, trend = TRUE)
-#' tt <- topTable(fit, number = Inf, coef = "MvsW")
-#' query <- rownames(tt[tt$logFC > 1 &tt$P.Value < 0.1,])
+#' tt <- topTable(fit, number = Inf, coef = 'MvsW')
+#' query <- rownames(tt[tt$logFC > 1 & tt$P.Value < 0.1, ])
 #' head(query)
-#' #
-#' #GSE114922.ASpediaFI <- analyzeFI(GSE114922.ASpediaFI, query, GSE114922.fpkm)
-analyzeFI <- function(object, query, expr, ppi = NULL,
-                      pathways = NULL, restart = 0.7, num.folds = 5,
-                      num.feats = 100, low.expr = 1, low.var = NULL,
-                      prop.na = 0.05, prop.extreme = 1,
-                      cor.threshold = 0.3){
-
+#' \dontrun{
+#' GSE114922.ASpediaFI <- analyzeFI(
+#'     GSE114922.ASpediaFI, query,
+#'     GSE114922.fpkm
+#' )
+#' }
+analyzeFI <- function(object, query, expr, ppi = NULL, pathways = NULL,
+                        restart = 0.7, num.folds = 5, num.feats = 100,
+                        low.expr = 1, low.var = NULL, prop.na = 0.05,
+                        prop.extreme = 1, cor.threshold = 0.3) {
     outFI <- object
 
-    if(is.null(ppi)){
+    if (is.null(ppi)) {
         ppi <- ppi.human
     }
-    if(is.null(pathways)){
+    if (is.null(pathways)) {
         pathways <- pathways.human
     }
 
-    if(!is(pathways, "list")){
+    if (!is(pathways, "list")) {
         pathways <- geneSetsList(pathways)
     }
 
-    res <- analyze(query = query, psi = outFI@psi, expr = expr,
-                   ppi = ppi, pathways = pathways, restart = restart,
-                   num.folds = num.folds, num.feats = num.feats,
-                   low.expr = low.expr, low.var = low.var,
-                   prop.na = prop.na, prop.extreme = prop.extreme,
-                   cor.threshold = cor.threshold)
+    res <- analyze(query = query, psi = psi(outFI), expr = expr, ppi = ppi,
+                    pathways = pathways, restart = restart,
+                    num.folds = num.folds, num.feats = num.feats,
+                    low.expr = low.expr, low.var = low.var, prop.na = prop.na,
+                    prop.extreme = prop.extreme, cor.threshold = cor.threshold)
 
-    outFI@network <- res$network
-    outFI@gene.table <- res$gene.table
-    outFI@as.table <- res$as.table
-    outFI@pathway.table <- res$pathway.table
+    network(outFI) <- res$network
+    gene.table(outFI) <- res$gene.table
+    as.table(outFI) <- res$as.table
+    pathway.table(outFI) <- res$pathway.table
 
     return(outFI)
-
 }
-

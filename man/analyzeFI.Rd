@@ -5,9 +5,9 @@
 \title{Functional interaction analysis of AS events}
 \usage{
 analyzeFI(object, query, expr, ppi = NULL, pathways = NULL,
-  restart = 0.7, num.folds = 5, num.feats = 100, low.expr = 1,
-  low.var = NULL, prop.na = 0.05, prop.extreme = 1,
-  cor.threshold = 0.3)
+    restart = 0.7, num.folds = 5, num.feats = 100, low.expr = 1,
+    low.var = NULL, prop.na = 0.05, prop.extreme = 1,
+    cor.threshold = 0.3)
 }
 \arguments{
 \item{object}{Object of class ASpediaFI}
@@ -60,14 +60,18 @@ It then performs GSEA on gene sets related to query genes.
 library(limma)
 data(GSE114922.fpkm)
 data(GSE114922.psi)
-design <- cbind(WT = 1, MvsW = colData(GSE114922.psi)$condition == "MUT")
+design <- cbind(WT = 1, MvsW = colData(GSE114922.psi)$condition == 'MUT')
 fit <- lmFit(log2(GSE114922.fpkm + 1), design = design)
 fit <- eBayes(fit, trend = TRUE)
-tt <- topTable(fit, number = Inf, coef = "MvsW")
-query <- rownames(tt[tt$logFC > 1 &tt$P.Value < 0.1,])
+tt <- topTable(fit, number = Inf, coef = 'MvsW')
+query <- rownames(tt[tt$logFC > 1 & tt$P.Value < 0.1, ])
 head(query)
-#
-#GSE114922.ASpediaFI <- analyzeFI(GSE114922.ASpediaFI, query, GSE114922.fpkm)
+\dontrun{
+GSE114922.ASpediaFI <- analyzeFI(
+    GSE114922.ASpediaFI, query,
+    GSE114922.fpkm
+)
+}
 }
 \references{
 Blatti, C. et al. (2016). Characterizing

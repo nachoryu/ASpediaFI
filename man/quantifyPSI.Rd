@@ -5,7 +5,7 @@
 \title{AS event quantification}
 \usage{
 quantifyPSI(object, read.type = "paired", read.length, insert.size,
-  min.reads, num.cores = 1)
+    min.reads, num.cores = 1)
 }
 \arguments{
 \item{object}{Object of class ASpediaFI}
@@ -28,16 +28,18 @@ Compute PSI values of AS events. This function borrows code
 from the \code{IMAS} package.
 }
 \examples{
-bamMT <- system.file("extdata/GSM3167287.subset.bam", package = "ASpediaFI")
-bamWT <- system.file("extdata/GSM3167290.subset.bam", package = "ASpediaFI")
-GSE114922.ASpediaFI <- ASpediaFI(sample.names = c("GSM3167287",
-                                                  "GSM3167290"),
-                                 bam.files = c(bamMT, bamWT),
-                                 conditions = c("MT", "WT"))
-#GSE114922.ASpediaFI <- quantifyPSI(GSE114922.ASpediaFI,
-#                                   read.type = "paired",
-#                                   read.length = 100, insert.size = 300,
-#                                   min.reads = 3, num.cores = 1)
+bamWT <- system.file('extdata/GSM3167290.subset.bam', package = 'ASpediaFI')
+GSE114922.ASpediaFI <- ASpediaFI(
+    sample.names = 'GSM3167290',
+    bam.files = bamWT, conditions = 'WT'
+)
+\dontrun{
+GSE114922.ASpediaFI <- quantifyPSI(GSE114922.ASpediaFI,
+    read.type = 'paired',
+    read.length = 100, insert.size = 300,
+    min.reads = 3, num.cores = 1
+)
+}
 }
 \references{
 Han, S. et al. (2017). IMAS: Integrative

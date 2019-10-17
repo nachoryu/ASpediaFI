@@ -4,14 +4,14 @@
 \name{GSE114922.fpkm}
 \alias{GSE114922.fpkm}
 \title{Example gene expression dataset}
-\format{An object of class \code{matrix} with 6275 rows and 82 columns.}
+\format{An object of class \code{matrix} with 6275 rows and 40 columns.}
 \usage{
 GSE114922.fpkm
 }
 \description{
 A matrix containing gene expression values. We downloaded RNA-Seq reads of
-82 MDS patients from GEO database (GSE114922), aligned with STAR, and obtained
-FPKM values using RSEM.
+82 MDS patients from GEO database (GSE114922), aligned with STAR, and
+obtained FPKM values using RSEM.
 }
 \examples{
 data(GSE114922.fpkm)

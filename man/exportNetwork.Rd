@@ -23,6 +23,6 @@ final subnetwork is exported.
 }
 \examples{
 library(igraph)
-fi <- new("ASpediaFI", network = make_empty_graph(n = 0))
-exportNetwork(fi, node = NULL, file = "empty.gml")
+fi <- new('ASpediaFI', network = make_empty_graph(n = 0))
+exportNetwork(fi, node = NULL, file = 'empty.gml')
 }

@@ -13,15 +13,15 @@
 #' patterns in human using bioinformatics method. \emph{Genes & Genomics}, 39.
 #' @return ASpediaFI object with a list of AS event annotations
 #' @examples
-#' fi <- new("ASpediaFI")
-#' gtf <- system.file("extdata/GRCh38.subset.gtf", package = "ASpediaFI")
+#' fi <- new('ASpediaFI')
+#' gtf <- system.file('extdata/GRCh38.subset.gtf', package = 'ASpediaFI')
 #' fi <- annotateASevents(fi, gtf.file = gtf, num.cores = 1)
 #' sapply(events(fi), length)
 #' head(events(fi)$SE)
-annotateASevents <- function(object, gtf.file, num.cores = 1){
+annotateASevents <- function(object, gtf.file, num.cores = 1) {
     outFI <- object
     as.list <- detect(gtf.file, num.cores)
-    outFI@gtf <- import.gff(gtf.file)
-    outFI@events <- annotate(as.list, outFI@gtf)
+    gtf(outFI) <- import.gff(gtf.file)
+    events(outFI) <- annotate(as.list, gtf(outFI))
     return(outFI)
 }

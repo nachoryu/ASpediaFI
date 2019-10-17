@@ -21,8 +21,8 @@ Detect and annotate AS events from GTF. This function borrows code
 from the \code{IVAS} package.
 }
 \examples{
-fi <- new("ASpediaFI")
-gtf <- system.file("extdata/GRCh38.subset.gtf", package = "ASpediaFI")
+fi <- new('ASpediaFI')
+gtf <- system.file('extdata/GRCh38.subset.gtf', package = 'ASpediaFI')
 fi <- annotateASevents(fi, gtf.file = gtf, num.cores = 1)
 sapply(events(fi), length)
 head(events(fi)$SE)

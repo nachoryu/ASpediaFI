@@ -1,20 +1,21 @@
 Package: ASpediaFI
 Type: Package
 Title: ASpedia-FI: Functional Interaction Analysis of Alternative Splicing Events
-Version: 0.99.6
-Date: 2019-10-15
+Version: 0.99.7
+Date: 2019-10-17
 Author: Doyeong Yu, Kyubin Lee, Daejin Hyung, Soo Young Cho, Charny Park
 Maintainer: Doyeong Yu <nachoryu@ncc.re.kr>
 Description: This package provides functionalities for a systematic and integrative analysis of alternative splicing events and their functional interactions. 
 License: GPL-3
 Encoding: UTF-8
 biocViews: AlternativeSplicing, Annotation, Coverage, GeneExpression, GeneSetEnrichment, GraphAndNetwork, KEGG, Network, NetworkInference, Pathways, Reactome, Transcription, Sequencing, Visualization
-LazyData: true
+LazyData: false
 RoxygenNote: 6.1.1
 Depends: R (>= 3.6.0), SummarizedExperiment, ROCR
 Imports: BiocParallel, GenomicAlignments, GenomicFeatures, GenomicRanges, 
     IRanges, IVAS, Rsamtools, biomaRt, limma, S4Vectors, stats,
     DRaWR, GenomeInfoDb, Gviz, Matrix, dplyr, fgsea, reshape2, igraph,
-    graphics, e1071, methods, rtracklayer, scales, grid, ggplot2, mGSZ
+    graphics, e1071, methods, rtracklayer, scales, grid, ggplot2, mGSZ, utils
 Suggests: knitr
 VignetteBuilder: knitr
+BugReports: https://github.com/nachoryu/ASpediaFI
