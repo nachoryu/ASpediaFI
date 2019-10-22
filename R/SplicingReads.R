@@ -97,7 +97,7 @@ SplicingReads <- function(bam.file = NULL, test.exon = NULL, spli.jun = NULL,
         Pco.Gran <- GRanges("*", unlist(Pco))
         over.mat <- findOverlaps(Pco.Gran, Ex.range)
         over.mat <- as.matrix(over.mat)
-        if (read.type == "exon") {
+        if (read.type == "single") {
             ex.re <- exEnv$ex.test(Pco.Gran, over.mat, NULL)
             return(ex.re)
         }
