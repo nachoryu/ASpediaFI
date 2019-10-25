@@ -298,7 +298,7 @@ quantify <- function(AS.list, sample.info, read.type = "paired", read.length,
             t.ex <- c(ea.re[, "DownEX"], ex.sp, ea.re[, "UpEX"])
             e.chr <- ea.re[, "Nchr"]
             pr.re <- ExReads(t.ex, g.1.s, t.ex, t.ex, g.1.p, g.2.p, g.1.s,
-                                g.2.s, e.chr, each.ran, "exon", "RI", ins,
+                                g.2.s, e.chr, each.ran, "single", "RI", ins,
                                 min.reads)
             pr.re
         }
@@ -348,7 +348,7 @@ quantify <- function(AS.list, sample.info, read.type = "paired", read.length,
             t.sp <- c(g.1.s, g.2.s)
             e.chr <- unique(ea.re[, "Nchr"])
             pr.re <- ExReads(t.ex, t.sp, g.1.e, g.2.e, g.1.p, g.2.p,
-                                g.1.s, g.2.s, e.chr, each.ran, "exon", "ALSS",
+                                g.1.s, g.2.s, e.chr, each.ran, "single", "ALSS",
                                 ins, min.reads)
             pr.re
         }

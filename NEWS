@@ -27,3 +27,6 @@ Changes in version 0.99.8 (2019-10-17)
 
 Changes in version 0.99.9 (2019-10-22)
 + Fixed issue from quantifying single-end reads
+
+Changes in version 0.99.10 (2019-10-25)
++ Fixed issue from quantifying RI and ALSS
