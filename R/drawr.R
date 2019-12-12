@@ -346,6 +346,24 @@ drawr <- function(query.genes, universe, network, restart,
     stage2 <- rep(0, nnodes)
     evaltab <- cbind(evaltab, stage2)
     evaltab[nodenames2, "stage2"] <- rwr_res$vec[nodenames2]
+    
+    #Permutation test
+    pvalvec <- structure(rep(0, length(names(rwr_res$vec))), 
+                            names = names(rwr_res$vec))
+    for(i in 1:10000){
+        query.random <- blankvec2
+        genenodes <- nodenames2[!nodenames2 %in% keepfeats]
+        selectedgenes <- sample(genenodes, length(midxs))
+        selected <- match(selectedgenes, nodenames2)
+        query.random[selected] <- 1
+        startvec.random <- blankvec2 + 1/nnodes2
+        rwr.random <- RWR(boolSparceMat2, transmat2, restart, 
+                            query.random, startvec.random, 
+                            maxiters, thresh)$vec
+        compares <- ifelse(rwr.random > rwr_res$vec, 1, 0)
+        pvalvec <- pvalvec + compares
+    }
+    pvalvec <- pvalvec/10000
 
     # Stagewise performance and ROC curves
     perftable <- data.frame(row.names = seq_len(nrow(restable)),
@@ -372,7 +390,8 @@ drawr <- function(query.genes, universe, network, restart,
                                 type = features[seq_len(nkeep), "type"],
                                 prob = features[seq_len(nkeep), "stage2"],
                                 stringsAsFactors = FALSE)
-
+    featuretable$pval <- pvalvec[featuretable$node]
+    
     # Gene nodes
     genes <- rbind(evaltab[evaltab[, "type"] == "-1", ])
     genes <- genes[order(as.numeric(genes[, "stage2"]), decreasing = TRUE), ]
@@ -380,6 +399,7 @@ drawr <- function(query.genes, universe, network, restart,
                                 node = genes[, "node"],
                                 prob = genes[, "stage2"],
                                 stringsAsFactors = FALSE)
-
+    genetable$pval <- pvalvec[genetable$node]
+    
     return(list(features = featuretable, genes = genetable))
 }

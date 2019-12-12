@@ -30,3 +30,6 @@ Changes in version 0.99.9 (2019-10-22)
 
 Changes in version 0.99.10 (2019-10-25)
 + Fixed issue from quantifying RI and ALSS
+
+Changes in version 1.1.1 (2019-12-12)
++ Added permutation test to DRaWR

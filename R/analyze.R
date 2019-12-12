@@ -151,19 +151,21 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
     # Gene table
     gene.table <- drawr.result$genes
     gene.table$GeneSymbol <- gene.table$node
-    gene.table$Probability <- as.numeric(gene.table$prob)
-    gene.table <- gene.table[, c("GeneSymbol", "Probability")]
+    gene.table$StatP <- as.numeric(gene.table$prob)
+    gene.table$PermPvalue <- as.numeric(gene.table$pval)
+    gene.table <- gene.table[, c("GeneSymbol", "StatP", "PermPvalue")]
     gene.nodes <- gene.table$GeneSymbol
 
     # AS event table
     as.table <- drawr.result$features[drawr.result$features$type == "AS", ]
     as.table$EventID <- as.table$node
-    as.table$Probability <- as.numeric(as.table$prob)
+    as.table$StatP <- as.numeric(as.table$prob)
+    as.table$PermPvalue <- as.numeric(as.table$pval)
     as.table$GeneSymbol <- strsplit2(as.table$EventID, split = ":")[, 1]
     as.table$EventType <- strsplit2(as.table$EventID, split = ":")[, 2]
     as.table$Rank <- seq_len(nrow(as.table))
     as.table <- as.table[, c("EventID", "GeneSymbol", "EventType", "Rank",
-                                "Probability")]
+                                "StatP", "PermPvalue")]
     rownames(as.table) <- seq_len(nrow(as.table))
     as.nodes <- as.table$EventID
 
@@ -182,9 +184,11 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
                                                 "Pathway", ]
     pathway.table$prob <- as.numeric(pathway.table$prob)
     pathway.table$Pathway <- pathway.table$node
-    pathway.table$Probability <- pathway.table$prob
+    pathway.table$StatP <- pathway.table$prob
+    pathway.table$PermPvalue <- as.numeric(pathway.table$pval)
     pathway.table$Rank <- seq_len(nrow(pathway.table))
-    pathway.table <- pathway.table[, c("Pathway", "Rank", "Probability")]
+    pathway.table <- pathway.table[, c("Pathway", "Rank", "StatP",
+                                        "PermPvalue")]
     pathway.nodes <- pathway.table$Pathway
 
     # Final network
@@ -202,9 +206,9 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
                                             rep("AS", length(as.nodes)),
                                             rep("Pathway",
                                                 length(pathway.nodes))),
-                                prob = c(gene.table$Probability,
-                                            as.table$Probability,
-                                            pathway.table$Probability))
+                                prob = c(gene.table$StatP,
+                                            as.table$StatP,
+                                            pathway.table$StatP))
 
     drawr.net <- graph_from_data_frame(edges, directed = FALSE,
                                         vertices = vertices)
