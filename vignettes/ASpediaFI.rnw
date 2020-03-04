@@ -79,8 +79,8 @@ Feature nodes are ranked by the difference between the converged probability
 distributions in two times of RWR. All feature nodes except top \textit{k}
 ranked nodes are removed to reconstruct a query-specific subnetwork. In the
 second stage, RWR is run on the query-specific subnetwork to obtain final
-rankings of genes and features. Permutation test is performed on the final
-subnetwork to test for the association with a query gene set. 
+rankings of genes and features. Permutation test is performed on gene nodes of 
+the final subnetwork to test for their association with a query gene set. 
 \texttt{ASpediaFI} provides the user with the final subnetwork and
 ranked lists of genes and features for further analysis including gene set
 enrichment analysis and visualization.
@@ -310,8 +310,8 @@ stages are computed.
 The \texttt{analyzeFI} method saves top-ranked AS events and pathways in the
 \texttt{as.table} and \texttt{pathway.table} fields, respectively.
 \texttt{as.table} contains the information about AS events including
-AS event ID, gene symbol, AS event type, final ranking, stationary probability,
-permutation test P-value and PSI values of samples in each condition.
+AS event ID, gene symbol, AS event type, final ranking
+and stationary probability.
 <<tables,message=FALSE>>=
 #Table of AS nodes in the final subnetwork
 as.table(GSE114922.ASpediaFI)[1:5, 2:6]
@@ -324,7 +324,6 @@ pathway.table(GSE114922.ASpediaFI)[1:5, 1:12]
 \item \texttt{Pathway}: name of pathway
 \item \texttt{Rank}: final ranking
 \item \texttt{StatP}: stationary probability
-\item \texttt{PermPvalue}: permutation test P-value
 \item \texttt{Pvalue}: GSEA P-value
 \item \texttt{Adj.Pvalue}: GSEA adjusted P-value
 \item \texttt{EnrichmentScore}: enrichment score

@@ -160,12 +160,11 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
     as.table <- drawr.result$features[drawr.result$features$type == "AS", ]
     as.table$EventID <- as.table$node
     as.table$StatP <- as.numeric(as.table$prob)
-    as.table$PermPvalue <- as.numeric(as.table$pval)
     as.table$GeneSymbol <- strsplit2(as.table$EventID, split = ":")[, 1]
     as.table$EventType <- strsplit2(as.table$EventID, split = ":")[, 2]
     as.table$Rank <- seq_len(nrow(as.table))
     as.table <- as.table[, c("EventID", "GeneSymbol", "EventType", "Rank",
-                                "StatP", "PermPvalue")]
+                                "StatP")]
     rownames(as.table) <- seq_len(nrow(as.table))
     as.nodes <- as.table$EventID
 
@@ -185,10 +184,8 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
     pathway.table$prob <- as.numeric(pathway.table$prob)
     pathway.table$Pathway <- pathway.table$node
     pathway.table$StatP <- pathway.table$prob
-    pathway.table$PermPvalue <- as.numeric(pathway.table$pval)
     pathway.table$Rank <- seq_len(nrow(pathway.table))
-    pathway.table <- pathway.table[, c("Pathway", "Rank", "StatP",
-                                        "PermPvalue")]
+    pathway.table <- pathway.table[, c("Pathway", "Rank", "StatP")]
     pathway.nodes <- pathway.table$Pathway
 
     # Final network
