@@ -314,10 +314,10 @@ AS event ID, gene symbol, AS event type, final ranking
 and stationary probability.
 <<tables,message=FALSE>>=
 #Table of AS nodes in the final subnetwork
-as.table(GSE114922.ASpediaFI)[1:5, 2:6]
+as.table(GSE114922.ASpediaFI)[1:5,]
 
 #Table of GS nodes in the final subnetwork
-pathway.table(GSE114922.ASpediaFI)[1:5, 1:12]
+pathway.table(GSE114922.ASpediaFI)[1:5,]
 @
 \texttt{gs.table} includes the following information about pathway nodes:
 \begin{itemize}

@@ -168,16 +168,6 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
     rownames(as.table) <- seq_len(nrow(as.table))
     as.nodes <- as.table$EventID
 
-    if ("condition" %in% colnames(colData(psi))) {
-        conds <- unique(colData(psi)$condition)
-        for (x in conds) {
-            as.table <- cbind(as.table, apply(psi.mat[as.nodes,
-                                colnames(psi)[colData(psi)$condition == x]], 1,
-                                function(x) paste(x, collapse = ",")))
-            colnames(as.table)[ncol(as.table)] <- paste0("PSI", ".", x)
-        }
-    }
-
     # Pathway table
     pathway.table <- drawr.result$features[drawr.result$features$type ==
                                                 "Pathway", ]
@@ -235,12 +225,7 @@ analyze <- function(query, psi, expr, pathways = NULL, ppi = NULL,
             function(x) sum(unique(gas$X1[gas$X2 %in% pathways[[x]]]) %in%
                                                                     as.nodes),
                 numeric(1))
-    pathway.table$Genes <- vapply(pathway.nodes,
-            function(x) paste(sort(universe.genes[universe.genes %in%
-                                            pathways[[x]]]), collapse = ","),
-                character(1))
     rownames(pathway.table) <- seq_len(nrow(pathway.table))
-
     return(list(network = drawr.net, gene.table = gene.table,
                 as.table = as.table, pathway.table = pathway.table))
 }
