@@ -12,7 +12,7 @@
 #' @param ppi an \code{igraph} object containing known interactions between
 #' genes. If NULL, an \code{igraph} object containing human gene-gene
 #' interactions will be used.
-#' @param pathways a GMT file or a named list of pathway gene sets. If NULL,
+#' @param pathways a named list of pathway gene sets. If NULL,
 #' a combined list of HALLMARK, KEGG, and REACTOME pathway gene sets will be
 #' used.
 #' @param restart a restart probability
@@ -33,7 +33,6 @@
 #' @references Blatti, C. et al. (2016). Characterizing
 #' gene sets using discrminative random walks with restart on
 #' heterogeneous biological networks. \emph{Bioinformatics}, 32.
-#' @importFrom mGSZ geneSetsList
 #' @importFrom utils data
 #' @return ASpediaFI object with results of functional interaction analysis
 #' @examples
@@ -63,10 +62,6 @@ analyzeFI <- function(object, query, expr, ppi = NULL, pathways = NULL,
     }
     if (is.null(pathways)) {
         pathways <- pathways.human
-    }
-
-    if (!is(pathways, "list")) {
-        pathways <- geneSetsList(pathways)
     }
 
     res <- analyze(query = query, psi = psi(outFI), expr = expr, ppi = ppi,
